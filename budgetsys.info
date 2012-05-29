@@ -1,4 +1,5 @@
 name = Budget System
 description = A budget viewing system designed for the Student Association at SUNY Oswego.
 core = 7.x
+package = Budget System
 files[] = budgetsys.module
