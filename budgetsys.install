@@ -128,7 +128,7 @@ function budgetsys_schema() {
     'indexes' => array(
       'bvid' => array('bvid'),
     ),
-    'primary key' => array('bvid'),
+    'primary key' => array('vid'),
     'foreign keys' => array(
       'budget_budget_value' => array(
         'table' => 'budgetsys_budget_value',
