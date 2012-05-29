@@ -8,18 +8,25 @@
  * Implements hook_entity_info().
  */
 function budgetsys_entity_info() {
-  $return['budget value'] = array(
+  $return['budget_value'] = array(
     'label' => t('Budget Value'),
-    'controller class' => 'BudgetValueController',
-    'base table' => 'budget_budget_value',
-    'revision table' => 'budget_budget_value_revision',
-    'uri calback' => 'budget_uri',
+    'plural label' => t('Budget Values'),
+    'description' => t('An entity type for budget values used in line items.'),
+    'controller class' => 'BudgetsysBudgetValueController',
+    'base table' => 'budgetsys_budget_value',
+    'revision table' => 'budgetsys_budget_value_revision',
+    'uri calback' => 'budgetsys_uri',
     'fieldable' => TRUE,
     'entity keys' => array(
       'id' => 'bvid',
       'revision' => 'vid',
       'label' => 'title',
+      'bundle' => 'type',
     ),
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'bundles' => array(),
     'static cache' => TRUE,
     'view modes' => array(
       'full' => array(
@@ -28,5 +35,84 @@ function budgetsys_entity_info() {
       ),
     ),
   );
+    foreach (budgetsys_budget_value_types() as $type => $info) {
+    $return['budget_value']['bundles'][$type] = array(
+      'label' => $info->name,
+      'admin' => array(
+        'path' => 'admin/structure/budgetvalue/manage/%budget_value_type',
+        'real path' => 'admin/structure/budgetvalue/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer budget values'),
+      ),
+    );
+  }
   return $return;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function budgetsys_menu() {
+  $items['admin/structure/budgetvalue'] = array(
+    'title' => 'Manage Budget Values',
+    'description' => 'Manage the Budget Values.',
+    'page callback' => 'budgetsys_budget_value_overview_types',
+    'access arguments' => array('administer budget values'),
+    'file' => 'budgetsys.admin.inc',
+  );
+    $items['admin/structure/budgetvalue/manage/%budgetsys_budget_value_type'] = array(
+    'title' => 'View budget value type',
+    'title callback' => 'budgetsys_budget_value_type_page_title',
+    'title arguments' => array(4),
+    'page callback' => 'budgetsys_budget_value_information',
+    'page arguments' => array(4),
+    'access arguments' => array('administer budget values'),
+    'file' => 'budgetsys.admin.inc',
+  );
+    $items['admin/structure/budgetvalue/manage/%budget_value_type/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Budget System uri callback
+ */
+function budgetsys_uri($budget_value) {
+  return array(
+    'path' => 'budgetvalue/' . $budget_value->bvid
+  );
+}
+
+function budgetsys_budget_value_types() {
+  $types = &drupal_static(__FUNCTION__);
+  
+  if (empty($types)) {
+    $types['expenditure'] = (object)array(
+      'type' => 'expenditure',
+      'name' => t('Expenditure'),
+      'description' => t('An budget value that contains spent funding.')
+    );
+   $types['income'] = (object)array(
+     'type' => 'income',
+     'name' => t('Income'),
+     'description' => t('A budget value that conains incoming funding.')
+    ); 
+  }
+  return $types;
+}
+
+function budgetsys_budget_value_page_title($budget_value) {
+  return $budget_value->title;
+}
+
+function budgetsys_budget_value_type_page_title($type) {
+  return t('Manage @type', array('@type' => $type->name));
+}
+
+function budgetsys_budget_value_type_load($type) {
+  $types = budgetsys_budget_value_types();
+  $type = str_replace('-', '_', $type);
+  return isset($types[$type]) ? $types[$type] : FALSE;
 }
