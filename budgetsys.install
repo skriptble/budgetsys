@@ -336,7 +336,7 @@ function budgetsys_schema() {
     ),
     'primary key' => array('oid'),
   );
-  $schema['budgetsys_line_item_revision'] = array(
+  $schema['budgetsys_orgniazation_revision'] = array(
     'description' => 'Stores information about each saved version of a {budgetsys_organization}.',
     'fields' => array(
       'oid' => array(
