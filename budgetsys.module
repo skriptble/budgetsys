@@ -4,3 +4,29 @@
  * @file 
  * The main module file for the Budget System.
  */
+/**
+ * Implements hook_entity_info().
+ */
+function budgetsys_entity_info() {
+  $return['budget value'] = array(
+    'label' => t('Budget Value'),
+    'controller class' => 'BudgetValueController',
+    'base table' => 'budget_budget_value',
+    'revision table' => 'budget_budget_value_revision',
+    'uri calback' => 'budget_uri',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'bvid',
+      'revision' => 'vid',
+      'label' => 'title',
+    ),
+    'static cache' => TRUE,
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full content'),
+        'custom settings' => TRUE,
+      ),
+    ),
+  );
+  return $return;
+}
