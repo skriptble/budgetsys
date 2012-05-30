@@ -94,6 +94,15 @@ function budgetsys_menu() {
       'file' => 'budgetsys.pages.inc',
     );
   }
+  $items['budget/value/%budget_value'] = array(
+    'title callback' => 'budget_value_page_title',
+    'title arguments' => array(2),
+    'page callback' => 'budget_value_page_view',
+    'page arguments' => array(2),
+    'access arguments' => array('view artworks'),
+    'type' => MENU_CALLBACK,
+    'file' => 'budgetsys.pages.inc',
+  );
   return $items;
 }
 
@@ -138,7 +147,7 @@ function budgetsys_forms() {
   return $forms;
 }
 
-function budgetsys_budget_value_page_title($budget_value) {
+function budget_value_page_title($budget_value) {
   return $budget_value->title;
 }
 

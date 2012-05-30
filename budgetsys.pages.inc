@@ -121,7 +121,21 @@ function budgetsys_form_submit($form, &$form_state) {
   drupal_set_message(t('Budget Value saved.'));
   $form_state['redirect'] = 'budget/value/' . $budget_value->bvid;
 }
-
+function budget_value_page_view($budget_value, $view_mode = 'full') {
+    // Remove previously built content, if exists.
+    $budget_value->content = array();
+    if ($view_mode == 'teaser') {
+      $budget_value->content['title'] = array(
+        '#markup' => filter_xss($budget_value->title),
+        '#weight' => -5,
+      );
+    }
+    // Build fields content.
+    field_attach_prepare_view('budget_value', array($budget_value-bvid => $budget_value), $view_mode);
+    entity_prepare_view('budget_value', array($budget_value->aid => $budget_value));
+    $budget_value->content += field_attach_view('budget_value', $budget_value, $view_mode);
+    return $budget_value->content;
+}
 function budget_value_form_delete_submit ($form, &$form_state) {
     $destination = array();
     if (isset($_GET['destination'])) {
