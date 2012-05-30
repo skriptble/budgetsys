@@ -130,10 +130,22 @@ function budget_value_page_view($budget_value, $view_mode = 'full') {
         '#weight' => -5,
       );
     }
+    $budget_value->content['account_number'] = $budget_value->account_number;
+    $budget_value->content['value'] = budget_value_format_currency($budget_value->value);
+    $budget_value->content['year'] = $budget_value->year;
+    $budget_value->content['type'] = $budget_value->type;
     // Build fields content.
-    field_attach_prepare_view('budget_value', array($budget_value-bvid => $budget_value), $view_mode);
-    entity_prepare_view('budget_value', array($budget_value->aid => $budget_value));
+    field_attach_prepare_view('budget_value', array($budget_value->bvid => $budget_value), $view_mode);
+    entity_prepare_view('budget_value', array($budget_value->bvid => $budget_value));
     $budget_value->content += field_attach_view('budget_value', $budget_value, $view_mode);
+    
+    $budget_value->content += array(
+      '#theme' => 'budget_value',
+      '#element' => $budget_value,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+    );
+    
     return $budget_value->content;
 }
 function budget_value_form_delete_submit ($form, &$form_state) {
@@ -144,4 +156,9 @@ function budget_value_form_delete_submit ($form, &$form_state) {
     }
     $budget_value = $form['#budget_value'];
     $form_state['redirect'] = array('budget/value/' . $budget_value->bvid . '/delete', array('query' => $destination));
+}
+
+function budget_value_format_currency($value) {
+  return variable_get('budgetsys_budget_value_currency_symbol', '$') . number_format($value, 2, '.', ',');
+  
 }

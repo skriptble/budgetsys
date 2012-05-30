@@ -39,7 +39,7 @@ function budgetsys_entity_info() {
     $return['budget_value']['bundles'][$type] = array(
       'label' => $info->name,
       'admin' => array(
-        'path' => 'admin/structure/budgetvalue/manage/%budget_value_type',
+        'path' => 'admin/structure/budgetvalue/manage/%budgetsys_budget_value_type',
         'real path' => 'admin/structure/budgetvalue/manage/' . $type,
         'bundle argument' => 4,
         'access arguments' => array('administer budget values'),
@@ -70,7 +70,7 @@ function budgetsys_menu() {
     'access arguments' => array('administer budget values'),
     'file' => 'budgetsys.admin.inc',
   );
-    $items['admin/structure/budgetvalue/manage/%budget_value_type/view'] = array(
+    $items['admin/structure/budgetvalue/manage/%budgetsys_budget_value_type/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
@@ -103,6 +103,20 @@ function budgetsys_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'budgetsys.pages.inc',
   );
+  $items['budget/value/%budget_value/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/config/system/budget_system'] = array(
+    'title' => t('Budget System Configuration'),
+    'description' => 'Configuration for the Budget System module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' =>array('budget_value_configuration_form'),
+    'access arguments' => array('administer budget system'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'budgetsys.settings.inc',
+  );
   return $items;
 }
 
@@ -116,6 +130,31 @@ function budgetsys_uri($budget_value) {
   );
 }
 
+/**
+ * Implements hook_field_extra_fields().
+ */
+function budgetsys_field_extra_fields() {
+  $extra = array();
+  foreach (budgetsys_budget_value_types() as $type) {
+    $extra['budget_value'][$type->type] = array(
+      'form' => array(
+        'title' => array(
+          'label' => t('Title'),
+          'description' => t('The name of the budget value'),
+          'weight' => -5,
+        ),
+      ),
+      'display' => array(
+        'title' => array(
+          'label' => t('Title'),
+          'description' => t('The name of the budget value'),
+          'weight' => -5,
+        ),
+      ),  
+    );
+  }
+  return $extra;
+}
 function budgetsys_budget_value_types() {
   $types = &drupal_static(__FUNCTION__);
   
@@ -176,3 +215,28 @@ function budget_value_new($type = '') {
 function budget_value_save($budget_value) {
   return entity_get_controller('budget_value')->save($budget_value);
 }
+
+function budget_value_load_multiple($bvids = array(), $conditions = array(), $reset = FALSE) {
+    return entity_load('budget_value', $bvids, $conditions, $reset);
+}
+
+function budget_value_load($bvid = NULL, $vid = NULL, $reset = FALSE) {
+    $bvids = (isset($bvid) ? array($bvid) : array());
+    $conditions = (isset($vid) ? array('vid' => $vid) : array());
+    $budget_value = budget_value_load_multiple($bvids, $conditions, $reset);
+    return $budget_value ? reset($budget_value) : FALSE;
+}
+
+/**
+ * Adds the theme specifications to the Theme Registry
+ */
+function budgetsys_theme($existing, $type, $theme, $path) {
+  return array(
+    'budget_value' => array(
+      'variables' => array('element' => null),
+      'template' => 'budget_value',
+      'path' => drupal_get_path('module', 'budgetsys') . "/templates",
+    ),
+  );
+}
+ 
