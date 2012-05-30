@@ -12,29 +12,31 @@ function budgetsys_entity_info() {
     'label' => t('Budget Value'),
     'plural label' => t('Budget Values'),
     'description' => t('An entity type for budget values used in line items.'),
-    'controller class' => 'BudgetsysBudgetValueController',
+    'entity class' => 'BudgetValue',
+    'controller class' => 'BudgetValueController',
     'base table' => 'budgetsys_budget_value',
     'revision table' => 'budgetsys_budget_value_revision',
-    'uri calback' => 'budgetsys_uri',
     'fieldable' => TRUE,
     'entity keys' => array(
-      'id' => 'bvid',
-      'revision' => 'vid',
-      'label' => 'title',
-      'bundle' => 'type',
-    ),
+        'id' => 'bvid',
+      ),
     'bundle keys' => array(
       'bundle' => 'type',
     ),
     'bundles' => array(),
-    'static cache' => TRUE,
+    'load hook' => 'budget_value_load',
     'view modes' => array(
       'full' => array(
         'label' => t('Full content'),
-        'custom settings' => TRUE,
+        'custom settings' => FALSE,
       ),
     ),
+    'label callback' => 'entity_class_label',
+    'uri calback' => 'entity_class_uri',
+    'module' => 'budgetsys',
+    'access callback' => 'budget_value_access',
   );
+
     foreach (budgetsys_budget_value_types() as $type => $info) {
     $return['budget_value']['bundles'][$type] = array(
       'label' => $info->name,
@@ -46,7 +48,6 @@ function budgetsys_entity_info() {
       ),
     );
   }
-    
   return $return;
 }
 
@@ -151,19 +152,38 @@ function budgetsys_budget_value_type_load($type) {
   $type = str_replace('-', '_', $type);
   return isset($types[$type]) ? $types[$type] : FALSE;
 }
+
 /**
- * Returns an initialized artwork object.
- *
- * @param $type
- *   The machine-readable type of the artwork.
- *
- * @return
- *   An artwork object with all default fields initialized.
- */
-function budget_value_new($type = '') {
-  return entity_get_controller('budget_value')->create($type);
+* Load a task.
+*/
+function budget_value_load($bvid, $reset = FALSE) {
+  $budget_values = budget_value_load_multiple(array($bvid), array(), $reset);
+  return reset($budget_values);
+}
+/**
+* Load multiple tasks based on certain conditions.
+*/
+function budget_value_load_multiple($bvids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('budget_value', $bvids, $conditions, $reset);
 }
 
+/**
+* Save task.
+*/
 function budget_value_save($budget_value) {
-  return entity_get_controller('budget_value')->save($budget_value);
+  entity_save('budget_value', $budget_value);
+}
+
+/**
+* Delete single task.
+*/
+function budget_value_delete($budget_value) {
+  entity_delete('budget_value', entity_id('budget_value' ,$budget_value));
+}
+
+/**
+* Delete multiple tasks.
+*/
+function budget_value_delete_multiple($budget_values_id) {
+  entity_delete_multiple('budget_value', $budget_values_id);
 }

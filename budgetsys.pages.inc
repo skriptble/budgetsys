@@ -12,12 +12,12 @@ function budgetsys_budget_value_add_page() {
 function budgetsys_budget_value_add($type) {
   global $user;
   $types = budgetsys_budget_value_types();
-  $type = isset($type) ? str_replace('-', '_', $type) : NULL;
+
   if (empty($types[$type])) {
     return MENU_NOT_FOUND;
   }
   
-  $artwork = entity_get_controller('budget_value')->create($type);
+  $artwork = entity_get_controller('budget_value')->create($types);
   drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
   return drupal_get_form($type . '_budget_value_form', $artwork);
 }
