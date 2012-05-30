@@ -73,8 +73,29 @@ function budgetsys_menu() {
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
+  $items['budget/value/add'] = array(
+    'title' => 'Add new budget value',
+    'page callback' => 'budgetsys_budget_value_add_page',
+    'access arguments' => array('create budget values'),
+    'weight' => 1,
+    'menu_name' => 'management',
+    'file' => 'budgetsys.pages.inc',
+  );
+    foreach (budgetsys_budget_value_types() as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    $items['budget/value/add/' . $type_url_str] = array(
+      'title' => $type->name,
+      'title callback' => 'check_plain',
+      'page callback' => 'budgetsys_budget_value_add',
+      'page arguments' => array(3),
+      'access arguments' => array('create budget values'),
+      'description' => $type->description,
+      'file' => 'budgetsys.pages.inc',
+    );
+  }
   return $items;
 }
+
 
 /**
  * Budget System uri callback
@@ -103,6 +124,19 @@ function budgetsys_budget_value_types() {
   return $types;
 }
 
+/**
+* Implements hook_forms().
+*/
+function budgetsys_forms() {
+  $forms = array();
+  if ($types = budgetsys_budget_value_types()) {
+    foreach (array_keys($types) as $type) {
+      $forms[$type . '_budget_value_form']['callback'] = 'budgetsys_form';
+    }
+  }
+  return $forms;
+}
+
 function budgetsys_budget_value_page_title($budget_value) {
   return $budget_value->title;
 }
@@ -115,4 +149,20 @@ function budgetsys_budget_value_type_load($type) {
   $types = budgetsys_budget_value_types();
   $type = str_replace('-', '_', $type);
   return isset($types[$type]) ? $types[$type] : FALSE;
+}
+/**
+ * Returns an initialized artwork object.
+ *
+ * @param $type
+ *   The machine-readable type of the artwork.
+ *
+ * @return
+ *   An artwork object with all default fields initialized.
+ */
+function budget_value_new($type = '') {
+  return entity_get_controller('budget_value')->create($type);
+}
+
+function budget_value_save($budget_value) {
+  return entity_get_controller('budget_value')->save($budget_value);
 }

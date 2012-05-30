@@ -5,5 +5,7 @@ package = Budget System
 version = 7.x-dev
 files[] = budgetsys.module
 files[] = budgetsys.install
+files[] = budgetsys.controller.inc
+files[] = budgetsys.pages.inc
 
 dependencies[] = entity

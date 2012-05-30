@@ -8,7 +8,7 @@ public function create($type = '') {
       'title' => '',
     );
   }
- public function save($artwork) {
+ public function save($budget_value) {
     $transaction = db_transaction();
     try {
       global $user;
@@ -52,7 +52,7 @@ public function create($type = '') {
         if ($update_budget_value) {
           db_update('budgetsys_budget_value')
           ->fields(array('vid' => $budget_value->vid))
-          ->condition('bvid', $budget_value->aid)
+          ->condition('bvid', $budget_value->bvid)
           ->execute();
         }
         // Save fields.
