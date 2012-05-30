@@ -46,6 +46,7 @@ function budgetsys_entity_info() {
       ),
     );
   }
+    
   return $return;
 }
 
