@@ -33,7 +33,7 @@ function budgetsys_org_add_form($form, &$form_state, $budget_org) {
     '#default_value' => ( isset($budget_org->active) ? $budget_org->active : 0),
     '#description' => t('Check this box is this organization is active.'),
     '#weight' => -4,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
     $form['budget_category'] = array(
     '#type' => 'select',
