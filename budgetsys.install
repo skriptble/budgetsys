@@ -62,6 +62,11 @@ function budgetsys_schema() {
         'type' => 'float',
         'not null' => TRUE,
       ),
+      'organization' => array(         
+        'description' => 'The organization associated with this budget value',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),  
     ),
     'unique keys' => array(
       'bvid_vid' => array('bvid', 'vid'),
@@ -124,6 +129,11 @@ function budgetsys_schema() {
         'type' => 'float',
         'not null' => TRUE,
       ),
+      'organization' => array(         
+        'description' => 'The organization associated with this budget value',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),        
     ),
     'indexes' => array(
       'bvid' => array('bvid'),
@@ -400,4 +410,17 @@ function budgetsys_schema() {
   );
   return $schema;
 }
-
+/**
+ * Adding a new column to the {budgetsys_budget_value} and {budgetsys_budget_value_revision} tables for organizations
+ */
+function budgetsys_update_7000() {
+    $spec = array(
+        'description' => 'The organization associated with this budget value',
+        'type' => 'int',
+        'not null' => FALSE,
+      ); 
+  db_add_field( 'budgetsys_budget_value', 'organization', $spec);
+  db_add_field( 'budgetsys_budget_value_revision', 'organization', $spec);
+  return t('The update was completed successfully! The new column has been added.');
+  
+}
