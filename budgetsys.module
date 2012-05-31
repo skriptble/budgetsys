@@ -99,7 +99,7 @@ function budgetsys_menu() {
     'title arguments' => array(2),
     'page callback' => 'budget_value_page_view',
     'page arguments' => array(2),
-    'access arguments' => array('view artworks'),
+    'access arguments' => array('view budget values'),
     'type' => MENU_CALLBACK,
     'file' => 'budgetsys.pages.inc',
   );
