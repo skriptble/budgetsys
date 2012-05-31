@@ -6,14 +6,20 @@ function budgetsys_org_add() {
   
   $budget_org = entity_get_controller('budgetsys_org')->create();
   drupal_set_title(t('Create Organization'));
-  return drupal_get_form('budgetsys_org_add_form', $budget_org);
+  return drupal_get_form('budgetsys_org_form', $budget_org);
   
 }
-
+/**
+ * Budget System Organization edit form
+ */
+function budgetsys_org_page_edit ($budget_org) {
+    drupal_set_title(t('<em>Edit Organization: @title</em>', array('@title' => $budget_org->title)), PASS_THROUGH);
+    return drupal_get_form('budgetsys_org_form', $budget_org);
+}
 /**
  * Implements hook_form().
  */
-function budgetsys_org_add_form($form, &$form_state, $budget_org) {
+function budgetsys_org_form($form, &$form_state, $budget_org) {
   //Set the id to identify this as an budget system organization edit form.
   $form['#id'] = 'budgetsys-org-form';
   //Save the organization for later, in case we need it.
@@ -23,14 +29,14 @@ function budgetsys_org_add_form($form, &$form_state, $budget_org) {
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
-    '#default_value' => ( isset($budget_org->title) ? $budget_org->title : ''),
+    '#default_value' => isset($budget_org->title) ? $budget_org->title : '',
     '#weight' => -5,
     '#required' => TRUE,
   );
   $form['active'] = array(
     '#type' => 'checkbox',
     '#title' => t('Active Organization'),
-    '#default_value' => ( isset($budget_org->active) ? $budget_org->active : 0),
+    '#default_value' => isset($budget_org->active) ? $budget_org->active : 0,
     '#description' => t('Check this box is this organization is active.'),
     '#weight' => -4,
     '#required' => FALSE,
@@ -40,6 +46,7 @@ function budgetsys_org_add_form($form, &$form_state, $budget_org) {
     '#description' => 'Please select the budget category this organization belongs to.',
     '#title' => t('Budget Category'),
     '#options' => budgetsys_org_list_budget_categories(),
+    '#default_value' => isset($budget_org->budget_category) ? $budget_org->budget_category : 0,
     '#weight' => -3,
     '#required' => TRUE,
   );
