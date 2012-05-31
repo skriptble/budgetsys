@@ -40,14 +40,14 @@ function budgetsys_form($form, &$form_state, $budget_value) {
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
-    '#default_value' => $budget_value->title,
+    '#default_value' => ( isset($budget_value->title) ? $budget_value->title : ''),
     '#weight' => -5,
     '#required' => TRUE,
   );
   $form['account_number'] = array(
     '#type' => 'textfield',
     '#title' => t('Account Number'),
-    '#default_value' => $budget_value->account_number,
+    '#default_value' => ( isset($budget_value->account_number) ? $budget_value->account_number : ''),
     '#weight' => -4,
     '#required' => TRUE,
   );
@@ -55,7 +55,7 @@ function budgetsys_form($form, &$form_state, $budget_value) {
     '#type' => 'textfield',
     '#description' => 'Only use number values with no commas or a $',
     '#title' => t('Account Value'),
-    '#default_value' => $budget_value->value,
+    '#default_value' => ( isset($budget_value->value) ? $budget_value->value : ''),
     '#weight' => -3,
     '#required' => TRUE,
   );
@@ -63,7 +63,7 @@ function budgetsys_form($form, &$form_state, $budget_value) {
     '#type' => 'textfield',
     '#description' => 'The fiscal year this account is for.',
     '#title' => t('Account Year'),
-    '#default_value' => $budget_value->year,
+    '#default_value' => ( isset($budget_value->year) ? $budget_value->year : ''),
     '#weight' => -3,
     '#required' => TRUE,
   );
@@ -110,8 +110,8 @@ function budgetsys_form_validate($form, &$form_state) {
 function budgetsys_form_submit($form, &$form_state) {
   global $user;
   $budget_value = &$form_state['budget_value'];
-  // Set the artwork's uid if it's being created at this time.
-  if (empty($artwork->uid)) {
+  // Set the budget value's uid if it's being created at this time.
+  if (empty($budget_value->uid)) {
     $budget_value->uid = $user->uid;
   }
   $budget_value->title = $form_state['values']['title'];
