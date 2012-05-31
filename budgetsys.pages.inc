@@ -21,6 +21,12 @@ function budgetsys_budget_value_add($type) {
   drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
   return drupal_get_form($type . '_budget_value_form', $artwork);
 }
+
+function budget_value_page_edit ($budget_value) {
+    $types = budgetsys_budget_value_types();
+    drupal_set_title(t('<em>Edit @type</em>', array('@type' => $types[$budget_value->type]->name, '@atitle' => $budget_value->title)), PASS_THROUGH);
+    return drupal_get_form($budget_value->type . '_budget_value_form', $budget_value);
+}
 /**
 * Implements hook_form().
 */

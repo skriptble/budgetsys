@@ -7,11 +7,6 @@
   <p style="float: right;"><a href="?q=budget_value/<?php echo $aid; ?>/edit">Edit</a></p>
   <?php endif; ?>
   <?php echo render($content['title']); ?>
-  <p class="meta">
-    <?php echo render($content['account_number']); ?><br />
-    <?php echo render($content['value']); ?><br />
-    <?php echo render($content['year']); ?><br />
-      </p>
     <table>
       <tr>
         <th>Account Number</th>
@@ -19,7 +14,7 @@
         <th>Account Year</th>
       </tr>
       <tr>
-        <th><?php echo render($content['account_number']); ?></th>
+        <td><?php echo render($content['account_number']); ?></td>
         <td><?php echo render($content['value']); ?></td>
         <td><?php echo render($content['year']); ?></td>
       </tr>

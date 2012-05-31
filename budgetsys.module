@@ -108,6 +108,16 @@ function budgetsys_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
+    $items['budget/value/%budget_value/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'budget_value_page_edit',
+    'page arguments' => array(2),
+    'access arguments' => array('update budget values'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'budgetsys.pages.inc',
+  );
   $items['admin/config/system/budget_system'] = array(
     'title' => t('Budget System Configuration'),
     'description' => 'Configuration for the Budget System module',
