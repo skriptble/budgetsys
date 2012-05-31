@@ -136,7 +136,7 @@ function budgetsys_org_active_translate($status) {
 
 function budgetsys_org_load_budget_categories() {
   $budget_category_s = variable_get('budgetsys_org_budget_categories');
-  $budget_categories = explode(',', $budget_category_s);
+  $budget_categories = explode(', ', $budget_category_s);
   return $budget_categories;
 }
 
