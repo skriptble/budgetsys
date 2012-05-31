@@ -47,7 +47,7 @@ function budgetsys_form($form, &$form_state, $budget_value) {
   $form['account_number'] = array(
     '#type' => 'textfield',
     '#title' => t('Account Number'),
-    '#default_value' => 'N0000',
+    '#default_value' => $budget_value->account_number,
     '#weight' => -4,
     '#required' => TRUE,
   );
@@ -55,7 +55,7 @@ function budgetsys_form($form, &$form_state, $budget_value) {
     '#type' => 'textfield',
     '#description' => 'Only use number values with no commas or a $',
     '#title' => t('Account Value'),
-    '#default_value' => '1000.00',
+    '#default_value' => $budget_value->value,
     '#weight' => -3,
     '#required' => TRUE,
   );
@@ -63,7 +63,7 @@ function budgetsys_form($form, &$form_state, $budget_value) {
     '#type' => 'textfield',
     '#description' => 'The fiscal year this account is for.',
     '#title' => t('Account Year'),
-    '#default_value' => '2011-2012',
+    '#default_value' => $budget_value->year,
     '#weight' => -3,
     '#required' => TRUE,
   );
@@ -82,9 +82,9 @@ function budgetsys_form($form, &$form_state, $budget_value) {
     '#weight' => 5,
     '#submit' => array('budgetsys_form_submit'),
   );
-  if (!empty($artwork->aid)) {
+  if (!empty($budget_value->bvid)) {
     $form['buttons']['delete'] = array(
-      '#access' => user_access('delete artworks'),
+      '#access' => user_access('delete budget values'),
       '#type' => 'submit',
       '#value' => t('Delete'),
       '#weight' => 15,
