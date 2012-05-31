@@ -17,9 +17,9 @@ function budgetsys_budget_value_add($type) {
     return MENU_NOT_FOUND;
   }
   
-  $artwork = entity_get_controller('budget_value')->create($type);
+  $budget_value = entity_get_controller('budget_value')->create($type);
   drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
-  return drupal_get_form($type . '_budget_value_form', $artwork);
+  return drupal_get_form($type . '_budget_value_form', $budget_value);
 }
 
 function budget_value_page_edit ($budget_value) {
