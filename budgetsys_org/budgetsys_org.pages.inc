@@ -59,7 +59,7 @@ function budgetsys_org_add_form($form, &$form_state, $budget_org) {
     '#type' => 'submit',
     '#value' => t('Save'),
     '#weight' => 5,
-    '#submit' => array('budgetsy_orgs_form_submit'),
+    '#submit' => array('budgetsys_org_form_submit'),
   );
   if (!empty($budget_org->oid)) {
     $form['buttons']['delete'] = array(

@@ -62,7 +62,7 @@ function budgetsys_org_new($type = '') {
 }
 
 function budgetsys_org_save($budget_org) {
-  return entity_get_controller('budget_value')->save($budget_org);
+  return entity_get_controller('budgetsys_org')->save($budget_org);
 }
 
 function budgetsys_org_load_multiple($oids = array(), $conditions = array(), $reset = FALSE) {
