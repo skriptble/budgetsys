@@ -39,10 +39,7 @@ function budgetsys_org_add_form($form, &$form_state, $budget_org) {
     '#type' => 'select',
     '#description' => 'Please select the budget category this organization belongs to.',
     '#title' => t('Budget Category'),
-    '#options' => array(
-      'miscellaneous'=> t('Miscellaneous'),
-      'media_and_publications' => t('Media & Publications'),
-    ),
+    '#options' => budgetsys_org_list_budget_categories(),
     '#weight' => -3,
     '#required' => TRUE,
   );
@@ -104,4 +101,52 @@ function budgetsys_org_form_submit($form, &$form_state) {
   // Notify the user.
   drupal_set_message(t('Organization saved.'));
   $form_state['redirect'] = 'budget/org/' . $budget_org->oid;
+}
+
+function budgetsys_org_page_view($budget_org, $view_mode = 'full') {
+    // Remove previously built content, if exists.
+    $budget_org->content = array();
+    if ($view_mode == 'teaser') {
+      $budget_org->content['title'] = array(
+        '#markup' => filter_xss($budget_org->title),
+        '#weight' => -5,
+      );
+    }
+    $budget_org->content['active'] = budgetsys_org_active_translate($budget_org->active);
+    $budget_org->content['budget_category'] = $budget_org->budget_category;
+    // Build fields content.
+    field_attach_prepare_view('budgetsys_org', array($budget_org->oid => $budget_org), $view_mode);
+    entity_prepare_view('budgetsys_org', array($budget_org->oid => $budget_org));
+    $budget_org->content += field_attach_view('budgetsys_org', $budget_org, $view_mode);
+    
+    $budget_org->content += array(
+      '#theme' => 'budgetsys_org',
+      '#element' => $budget_org,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+    );
+    
+    return $budget_org->content;
+}
+
+function budgetsys_org_active_translate($status) {
+  if($status == 1) { return 'Yes';}
+  else return 'No';
+}
+
+function budgetsys_org_load_budget_categories() {
+  $budget_category_s = variable_get('budgetsys_org_budget_categories');
+  $budget_categories = explode(',', $budget_category_s);
+  return $budget_categories;
+}
+
+function budgetsys_org_list_budget_categories() {
+  $budget_categories = budgetsys_org_load_budget_categories();
+  $list = array();
+
+  foreach($budget_categories as $category) {
+    $list[t($category)] = t($category);
+  }
+  
+  return $list;
 }
