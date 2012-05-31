@@ -118,6 +118,16 @@ function budgetsys_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'budgetsys.pages.inc',
   );
+    $items['budget/value/%budget_value/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('budget_value_delete_confirm', 2),
+    'access arguments' => array('delete budget values'),
+    'weight' => 1,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_INLINE,
+    'file' => 'budgetsys.pages.inc',
+  );
   $items['admin/config/system/budget_system'] = array(
     'title' => t('Budget System Configuration'),
     'description' => 'Configuration for the Budget System module',
@@ -237,6 +247,12 @@ function budget_value_load($bvid = NULL, $vid = NULL, $reset = FALSE) {
     return $budget_value ? reset($budget_value) : FALSE;
 }
 
+function budget_value_delete($bvid) {
+    return budget_value_delete_multiple(array($bvid));
+}
+function budget_value_delete_multiple($bvids) {
+    return entity_get_controller('budget_value')->delete($bvids);
+}
 /**
  * Adds the theme specifications to the Theme Registry
  */

@@ -163,7 +163,28 @@ function budget_value_form_delete_submit ($form, &$form_state) {
     $budget_value = $form['#budget_value'];
     $form_state['redirect'] = array('budget/value/' . $budget_value->bvid . '/delete', array('query' => $destination));
 }
-
+function budget_value_delete_confirm($form, &$form_state, $budget_value) {
+    $form['#budget_value'] = $budget_value;
+    // Always provide entity id in the same form key as in the entity edit form.
+    $form['bvid'] = array('#type' => 'value', '#value' => $budget_value->bvid);
+    return confirm_form($form,
+    t('Are you sure you want to delete %title?', array('%title' => $budget_value->title)),
+    'budget/value/' . $budget_value->bvid,
+    t('This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel')
+    );
+}
+function budget_value_delete_confirm_submit($form, &$form_state) {
+    if ($form_state['values']['confirm']) {
+        $budget_value = budget_value_load($form_state['values']['bvid']);
+        budget_value_delete($form_state['values']['bvid']);
+        watchdog('budgetsys_budget_value', '@type: deleted %title.', array('@type' => $budget_value->type, '%title' => $budget_value->title));
+        $types = budgetsys_budget_value_types();
+        drupal_set_message(t('@type %title has been deleted.', array('@type' => $types[$budget_value->type]->name, '%title' => $budget_value->title)));
+    }
+    $form_state['redirect'] = '<front>';
+}
 function budget_value_format_currency($value) {
   return variable_get('budgetsys_budget_value_currency_symbol', '$') . number_format($value, 2, '.', ',');
   
