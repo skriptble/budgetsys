@@ -12,7 +12,7 @@ function budgetsys_org_schema() {
         'not null' => TRUE,
       ),
       'vid' => array(
-        'description' => 'The current {budget_org_revision}.vid version identifier.',
+        'description' => 'The current {budgetsys_org_revision}.vid version identifier.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
