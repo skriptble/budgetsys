@@ -111,8 +111,8 @@ function budgetsys_org_schema() {
     ),
     'primary key' => array('vid'),
     'foreign keys' => array(
-      'budgetsys_organization' => array(
-        'table' => 'budgetsys_organization',
+      'budgetsys_org' => array(
+        'table' => 'budgetsys_org',
         'columns' => array(
           'oid' => 'oid',
         ),
