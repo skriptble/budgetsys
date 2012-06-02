@@ -9,3 +9,4 @@ files[] = budgetsys_org.controller.inc
 files[] = budgetsys_org.pages.inc
 
 dependencies[] = entity
+dependencies[] = budgetsys
