@@ -120,7 +120,12 @@ function budgetsys_org_load($oid = NULL, $vid = NULL, $reset = FALSE) {
     $budget_org = budgetsys_org_load_multiple($oids, $conditions, $reset);
     return $budget_org ? reset($budget_org) : FALSE;
 }
-
+function budgetsys_org_delete($oid) {
+    return budgetsys_org_delete_multiple(array($oid));
+}
+function budgetsys_org_delete_multiple($oids) {
+    return entity_get_controller('budgetsys_org')->delete($oids);
+}
 /**
  * Adds the theme specifications to the Theme Registry
  */

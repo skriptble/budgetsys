@@ -109,7 +109,36 @@ function budgetsys_org_form_submit($form, &$form_state) {
   drupal_set_message(t('Organization saved.'));
   $form_state['redirect'] = 'budget/org/' . $budget_org->oid;
 }
-
+function budgetsys_org_form_delete_submit ($form, &$form_state) {
+    $destination = array();
+    if (isset($_GET['destination'])) {
+        $destination = drupal_get_destination();
+        unset($_GET['destination']);
+    }
+    $budget_org = $form['#budget_org'];
+    $form_state['redirect'] = array('budget/org/' . $budget_org->oid . '/delete', array('query' => $destination));
+}
+function budgetsys_org_delete_confirm($form, &$form_state, $budget_org) {
+    $form['#budget_org'] = $budget_org;
+    // Always provide entity id in the same form key as in the entity edit form.
+    $form['oid'] = array('#type' => 'value', '#value' => $budget_org->oid);
+    return confirm_form($form,
+    t('Are you sure you want to delete %title?', array('%title' => $budget_org->title)),
+    'budget/org/' . $budget_org->oid,
+    t('This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel')
+    );
+}
+function budgetsys_org_delete_confirm_submit($form, &$form_state) {
+    if ($form_state['values']['confirm']) {
+        $budget_org = budgetsys_org_load($form_state['values']['oid']);
+        budgetsys_org_delete($form_state['values']['oid']);
+        watchdog('budgetsys_org', 'Organization: deleted %title.', array('%title' => $budget_org->title));
+        drupal_set_message(t('Organization %title has been deleted.', array('%title' => $budget_org->title)));
+    }
+    $form_state['redirect'] = '<front>';
+}
 function budgetsys_org_page_view($budget_org, $view_mode = 'full') {
     // Remove previously built content, if exists.
     $budget_org->content = array();
