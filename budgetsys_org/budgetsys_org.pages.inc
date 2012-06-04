@@ -169,7 +169,13 @@ function budgetsys_org_active_translate($status) {
   if($status == 1) { return 'Yes';}
   else return 'No';
 }
-
+/**
+ * @return $budget_categories
+ * An array of budget categories from the budgetsys_org_budget_categories
+ * variable.
+ * 
+ * Creates an array of budget_categories from the variable.
+ */
 function budgetsys_org_load_budget_categories() {
   $budget_category_s = variable_get('budgetsys_org_budget_categories');
   $budget_categories = explode(', ', $budget_category_s);
