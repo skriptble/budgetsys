@@ -175,7 +175,13 @@ function budgetsys_org_load_budget_categories() {
   $budget_categories = explode(', ', $budget_category_s);
   return $budget_categories;
 }
-
+/**
+ * @return $list
+ * An array of budget categories, keyed by the category name
+ * 
+ * Generates a list of budget categories. Both the index
+ * and the values are the translated budget category
+ */
 function budgetsys_org_list_budget_categories() {
   $budget_categories = budgetsys_org_load_budget_categories();
   $list = array();
