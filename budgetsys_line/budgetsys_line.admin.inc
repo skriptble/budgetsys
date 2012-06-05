@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Generates the task type editing form.
+ * Generates the budget type editing form.
  */
 function budgetsys_line_type_form($form, &$form_state, $line_type, $op = 'edit') {
 
@@ -116,12 +116,12 @@ function budgetsys_line_type_form_delete_confirm_submit($form, &$form_state) {
 }
 
 /**
- * Page to select task Type to add new task.
+ * Page to select budget line Type to add new task.
  */
 function budgetsys_line_admin_add_page() {
   $items = array();
   foreach (budgetsys_line_item_types() as $line_type_key => $line_type) {
-    $items[] = l(entity_label('budgtsys_line_type', $line_type), 'budget/line/add/' . $line_type_key);
+    $items[] = l('Add ' . entity_label('budgetsys_line_type', $line_type) . ' Line', 'budget/line/add/' . $line_type_key);
   }
   return array('list' => array('#theme' => 'item_list', '#items' => $items, '#title' => t('Select type of budget line item to create.')));
 }
@@ -141,7 +141,7 @@ function budgetsys_line_add($type) {
 }
 
 /**
- * Task Form.
+ * Budget Line Form.
  */
 function budgetsys_line_form($form, &$form_state, $line_item) {
   $form_state['line_item'] = $line_item;
@@ -149,16 +149,35 @@ function budgetsys_line_form($form, &$form_state, $line_item) {
   $form['title'] = array(
     '#type' => 'textfield',
     '#required' => TRUE,
-    '#title' => t('Name'),
+    '#title' => t('Account Title'),
     '#default_value' => $line_item->title,
   );
 
-  $form['description'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Description'),
-    '#default_value' => $line_item->description,
+  $form['account_number'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Account Number'),
+    '#default_value' => $line_item->account_number,
+    '#required' => TRUE,
+    '#size' => 10,
   );
-
+  if(module_exists('budgetsys_org')) {
+    module_load_include('inc', 'budgetsys_org', 'budgetsys_org.pages');
+  $form['oid'] = array(
+    '#type' => 'select',
+    '#title' => t('Organization'),
+    '#default_value' => $line_item->oid,
+    '#options' => budgetsys_org_list_budget_categories(),  
+    '#required' => TRUE,
+  );
+  }
+   $form['year'] = array(
+    '#type' => 'textfield',
+    '#description' => 'The fiscal year this account is for.',
+    '#title' => t('Account Year'),
+    '#default_value' => $line_item->year,
+    '#required' => TRUE,
+    '#size' => 11,
+  );
   $form['uid'] = array(
     '#type' => 'value',
     '#value' => $line_item->uid,
@@ -177,7 +196,7 @@ function budgetsys_line_form($form, &$form_state, $line_item) {
 
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save task'),
+    '#value' => t('Save Budget Line Item'),
     '#submit' => $submit + array('budgetsys_line_form_submit'),
   );
 

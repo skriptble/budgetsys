@@ -18,6 +18,11 @@ function budgetsys_line_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'uid' => array(
+        'description' => 'The id of the creation user.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
       'title' => array(
         'description' => 'The title of this line item.',
         'type' => 'varchar',
@@ -84,6 +89,11 @@ function budgetsys_line_schema() {
         'description' => 'The primary indetifier for this version.',
         'type' => 'serial',
         'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The id of the creation user.',
+        'type' => 'int',
         'not null' => TRUE,
       ),
       'title' => array(
@@ -186,4 +196,18 @@ function budgetsys_line_schema() {
     ),
   );
   return $schema;
+}
+
+/**
+ * Adds a uid column to the {budgetsys_line} and {budgetsys_line_revision} tables.
+ */
+function budgetsys_line_update_7000() {
+  $spec = array(
+        'description' => 'The id of the creation user.',
+        'type' => 'int',
+      ); 
+  db_add_field( 'budgetsys_line', 'uid', $spec);
+  db_add_field( 'budgetsys_line_revision', 'uid', $spec);
+  
+  return 'Successfully Updated!';
 }

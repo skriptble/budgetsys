@@ -21,13 +21,29 @@ class BudgetsysLineClassController extends EntityAPIController {
     $values += array(
       'title' => '',
       'account_number' => '',
-      'organization' => '',
+      'oid' => '',
       'year' => '',
       'created' => REQUEST_TIME,
       'changed' => REQUEST_TIME,
       'uid' => $user->uid,
+      'revision table' => 'budgetsys_line_revision',
     );
     return parent::create($values);
+  }
+  
+  function saveRevision($budget_line, $uid, $update = FALSE) {
+    // Hold on to the budget line's original creator_uid but swap
+    // in the revision's creator_uid for the momentary write.
+  $temp_uid = $budget_line->uid;
+  $budget_line->uid = $uid;
+  if ($update) {
+    drupal_write_record('budgetsys_line_revision', $budget_line, 'vid');
+  } 
+  else {
+    drupal_write_record('budgetsys_line_revision', $budget_line);
+  }
+  // Reset the order's creator_uid to the original value.
+  $budget_line->uid = $temp_uid;
   }
 
 }

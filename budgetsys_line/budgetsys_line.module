@@ -22,7 +22,6 @@ function budgetsys_line_entity_info() {
       'load hook' => 'budgetsys_line_load',
       'entity keys' => array(
         'id' => 'lid',
-        'revision' => 'vid',
         'label' => 'title',
         'bundle' => 'type',
       ),
@@ -33,6 +32,7 @@ function budgetsys_line_entity_info() {
       'static cache' => TRUE,
       'label callback' => 'entity_class_label',
       'uri callback' => 'entity_class_uri',
+      'access callback' => 'budgetsys_line_access',
     ),
   );
 /*****************************************************************  
@@ -100,9 +100,8 @@ function budgetsys_line_menu() {
     'page callback' => 'budgetsys_line_admin_add_page',
     'access arguments' => array('administer budget line items'),
     'file' => 'budgetsys_line.admin.inc',
-    'type' => MENU_LOCAL_ACTION,
-    'tab_parent' => 'line item',
-    'tab_root' => 'line item',
+    'type' => MENU_NORMAL_ITEM,
+
   );
   $budget_line_uri = 'budget/line/%budgetsys_line';
   $budget_line_uri_argument_position = 2;
@@ -110,10 +109,10 @@ function budgetsys_line_menu() {
   $items[$budget_line_uri] = array(
     'title callback' => 'entity_label',
     'title arguments' => array('budgetsys_line', $budget_line_uri_argument_position),
-    'page callback' => 'budget_line_view',
+    'page callback' => 'budgetsys_line_view',
     'page arguments' => array($budget_line_uri_argument_position),
     'access callback' => 'entity_access',
-    'access arguments' => array('view', 'budgetsys_line', $budget_line_uri_argument_position),
+    'access arguments' => array('view', 'budgetsys_line_type', $budget_line_uri_argument_position),
     'file' => 'budgetsys_line.pages.inc',
   );
   
@@ -147,11 +146,11 @@ function budgetsys_line_menu() {
   
   foreach (budgetsys_line_item_types() as $type => $info) {
     $items['budget/line/add/' . $type] = array(
-      'title' => 'Add Budget Line Item',
+      'title' => 'Add ' . entity_label('budgetsys_line_type', $info) . ' Line',
       'page callback' => 'budgetsys_line_add',
       'page arguments' => array(3),
       'access callback' => 'entity_access',
-      'access arguments' => array('create', 'budgetsys_line', $type),
+      'access arguments' => array('create', 'budgetsys_line_type', $type),
       'file' => 'budgetsys_line.admin.inc',
     );
   }
@@ -249,6 +248,15 @@ function budgetsys_line_entity_property_info_alter(&$info) {
     'required' => TRUE,
     'schema field' => 'year',
   );
+  $properties['uid'] = array(
+    'label' => t("Author"),
+    'type' => 'user',
+    'description' => t("The author of the budget line."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget line items',
+    'required' => TRUE,
+    'schema field' => 'uid',
+  );
 }
 /*******************************************************************************
  ****************************** Budget Line API's ******************************
@@ -256,7 +264,7 @@ function budgetsys_line_entity_property_info_alter(&$info) {
 /**
 * Access callback for Budget Line.
 */
-function budgetsys_line_access($op, $task, $account = NULL, $entity_type = NULL) {
+function budgetsys_line_access($op, $budget_line, $account = NULL, $entity_type = NULL) {
   global $user;
   if (!isset($account)) {
     $account = $user;
@@ -271,7 +279,7 @@ function budgetsys_line_access($op, $task, $account = NULL, $entity_type = NULL)
     case 'edit':
       return user_access('administer budget line items')
           || user_access('edit any budget line items')
-          || (user_access('edit own budget line items') && ($task->uid == $account->uid));
+          || (user_access('edit own budget line items') && ($budget_line->uid == $account->uid));
   }
 }
 
@@ -294,7 +302,7 @@ function budgetsys_line_load_multiple($lids = array(), $conditions = array(), $r
  * Save budget line.
  */
 function budgetsys_line_save($line_item) {
-  entity_save('example_task', $line_item);
+  entity_save('budgetsys_line', $line_item);
 }
 
 /**
