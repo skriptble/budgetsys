@@ -109,7 +109,7 @@ function budgetsys_line_menu() {
   $items[$budget_line_uri] = array(
     'title callback' => 'entity_label',
     'title arguments' => array('budgetsys_line', $budget_line_uri_argument_position),
-    'page callback' => 'budgetsys_line_view',
+    'page callback' => 'budgetsys_line_page_view',
     'page arguments' => array($budget_line_uri_argument_position),
     'access callback' => 'entity_access',
     'access arguments' => array('view', 'budgetsys_line_type', $budget_line_uri_argument_position),
@@ -373,5 +373,18 @@ function budgetsys_line_views_api() {
   return array(
     'api' => 3,
     'path' => drupal_get_path('module', 'budgetsys_line'),
+  );
+}
+
+/**
+ * Adds the theme specifications to the Theme Registry
+ */
+function budgetsys_line_theme($existing, $type, $theme, $path) {
+  return array(
+    'budgetsys_line' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_line',
+      'path' => drupal_get_path('module', 'budgetsys_line') . "/templates",
+    ),
   );
 }
