@@ -54,6 +54,14 @@ function budgetsys_entity_info() {
  * Implements hook_menu().
  */
 function budgetsys_menu() {
+  $items['budget/example'] = array(
+    'title' => 'Exampe Page',
+    'description' => 'An example page for testing.',
+    'page callback' => 'budgetsys_example',
+    'access arguments' => array('view content'),
+    'type' => MENU_NORMAL_ITEM,
+  
+  );
   $items['admin/structure/budgetvalue'] = array(
     'title' => 'Manage Budget Values',
     'description' => 'Manage the Budget Values.',
@@ -295,4 +303,74 @@ function budgetsys_load_years_list() {
   }
   
   return $list;
+}
+/**
+ * Generates an array of fiscal years.
+ * 
+ * @param $current_year
+ *  The current year, formatted as either a 2 year 9 digit definition or a 1 year 4 digit definition
+ * 
+ * @param $num_years
+ *  The number of years to return
+ * 
+ * @return
+ *  An array consisting of the number of years specified starting from, but not including,
+ * $current_year
+ */
+function budgetsys_generate_prior_years($current_year = NULL, $num_years = NULL, $reversed = NULL) {
+  if(!$current_year) {
+    $current_year = variable_get('budgetsys_current_fiscal_year');
+  }
+  if(!$num_years) {
+    $num_years = variable_get('budgetsys_line_num_prior_years', '3');
+  }
+$multiyear_mode = variable_get('budgetsys_multiyear_fiscal_year');
+  if($multiyear_mode) {
+    if(strlen($current_year) != 9 || strpos($current_year, '-') != 4) { return drupal_set_message(t('The multiyear value is in an incorrect format. Ensure it is 9 digits formated as follows: 20XX-20XX<br>The current value for $current_year is: ' . $current_year), 'error'); }
+    $first_yr = substr($current_year, 0, 4);
+    $second_yr = substr($current_year, 5, 4);
+    $years = array();
+    for($y=1;$y<=$num_years;$y++) {
+      $temp_first_yr = $first_yr - $y;
+      $temp_second_yr = $second_yr - $y;
+      $years[$y-1] = $temp_first_yr . '-' . $temp_second_yr;
+    }
+    if($reversed) {
+      return array_reverse($years);
+    }
+    return $years;
+    
+  }
+return drupal_set_message(t('You currently do not have MultiYear Fiscal Year mode enabled. The single year functionality has not been built yet.'), 'error');;
+}
+/**
+ * A simple function to properly format currency.
+ * 
+ * @param $value
+ *  The value to be formatted as currency.
+ * 
+ * @return
+ *  The formatted currency.
+ */
+function budget_value_format_currency($value) {
+  return variable_get('budgetsys_budget_value_currency_symbol', '$') . number_format($value, 2, '.', ',');
+  
+}
+
+function budgetsys_example() {
+  
+}
+
+function budgetsys_create_link($text, $path) {
+  $link = array(
+    '#theme' => 'link',
+    '#text' => $text,
+    '#path' => $path,
+    '#options' => array(
+      'attributes' => array(),
+      'html' => FALSE,
+     ),
+  );
+  
+  return $link;
 }

@@ -112,7 +112,7 @@ function budgetsys_line_menu() {
     'page callback' => 'budgetsys_line_page_view',
     'page arguments' => array($budget_line_uri_argument_position),
     'access callback' => 'entity_access',
-    'access arguments' => array('view', 'budgetsys_line_type', $budget_line_uri_argument_position),
+    'access arguments' => array('view', 'budgetsys_line', $budget_line_uri_argument_position),
     'file' => 'budgetsys_line.pages.inc',
   );
   
@@ -121,14 +121,15 @@ function budgetsys_line_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
-  $items[$budget_line_uri . '/view/budget-line'] = array(
-    'title callback' => 'entity_label',
-    'title arguments' => array('budgetsys_line', $budget_line_uri_argument_position),
+  $items[$budget_line_uri . '/budget-line'] = array(
+    'title' => 'Budget Line',
     'page callback' => 'budgetsys_line_budget_view',
     'page arguments' => array($budget_line_uri_argument_position),
     'access callback' => 'entity_access',
-    'access arguments' => array('view', 'budgetsys_line_type', $budget_line_uri_argument_position),
+    'access arguments' => array('view', 'budgetsys_line', $budget_line_uri_argument_position),
     'file' => 'budgetsys_line.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );  
   $items[$budget_line_uri . '/delete'] = array(
     'title' => 'Delete task',
@@ -401,6 +402,11 @@ function budgetsys_line_theme($existing, $type, $theme, $path) {
     'budgetsys_line' => array(
       'variables' => array('element' => null),
       'template' => 'budgetsys_line',
+      'path' => drupal_get_path('module', 'budgetsys_line') . "/templates",
+    ),
+    'budgetsys_line_budget' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_line_budget',
       'path' => drupal_get_path('module', 'budgetsys_line') . "/templates",
     ),
   );

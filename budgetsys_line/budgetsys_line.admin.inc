@@ -171,12 +171,12 @@ function budgetsys_line_form($form, &$form_state, $line_item) {
   );
   }
    $form['year'] = array(
-    '#type' => 'textfield',
+    '#type' => 'select',
     '#description' => 'The fiscal year this account is for.',
     '#title' => t('Account Year'),
     '#default_value' => $line_item->year,
+    '#options' => budgetsys_load_years_list(),
     '#required' => TRUE,
-    '#size' => 11,
   );
   $form['uid'] = array(
     '#type' => 'value',

@@ -201,7 +201,4 @@ function budget_value_delete_confirm_submit($form, &$form_state) {
     }
     $form_state['redirect'] = '<front>';
 }
-function budget_value_format_currency($value) {
-  return variable_get('budgetsys_budget_value_currency_symbol', '$') . number_format($value, 2, '.', ',');
-  
-}
+
