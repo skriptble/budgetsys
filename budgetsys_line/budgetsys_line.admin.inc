@@ -161,12 +161,12 @@ function budgetsys_line_form($form, &$form_state, $line_item) {
     '#size' => 10,
   );
   if(module_exists('budgetsys_org')) {
-    module_load_include('inc', 'budgetsys_org', 'budgetsys_org.pages');
+    module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
   $form['oid'] = array(
     '#type' => 'select',
     '#title' => t('Organization'),
     '#default_value' => $line_item->oid,
-    '#options' => budgetsys_org_list_budget_categories(),  
+    '#options' => budgetsys_org_organization_select_list(),  
     '#required' => TRUE,
   );
   }

@@ -7,6 +7,7 @@ files[] = budgetsys_org.module
 files[] = budgetsys_org.install
 files[] = budgetsys_org.controller.inc
 files[] = budgetsys_org.pages.inc
+files[] = budget_sys.api.inc
 
 dependencies[] = entity
 dependencies[] = budgetsys
