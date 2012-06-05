@@ -35,6 +35,12 @@ function budgetsys_org_entity_info() {
  */
 function budgetsys_org_menu() {
   $items = array();
+  $items['awesome'] = array(
+    'title' => 'AWESOME',
+    'page callback' => 'budgetsys_org_example_page',
+    'access arguments' => array('view content'),
+    'file' => 'budgetsys_org.api.inc',
+  );
   $items['budget/org/add'] = array(
     'title' => 'Add new organization',
     'page callback' => 'budgetsys_org_add',
@@ -92,15 +98,52 @@ function budgetsys_org_menu() {
 function budgetsys_org_page_title($budget_org) {
   return $budget_org->title;
 }
-
 /**
- * Returns an initialized artwork object.
+ * Implements hook_entity_property_info_alter().
+ */
+function budgetsys_org_property_info_alter(&$info) {
+  $properties = &$info['budgetsys_org']['properties'];
+  $properties['created'] = array(
+    'label' => t("Date created"),
+    'type' => 'date',
+    'description' => t("The date the budget line was posted."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget organizations',
+    'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+    'label' => t("Date changed"),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t("The date the budget like was most recently updated."),
+  );
+  $properties['active'] = array(
+    'label' => t("Active"),
+    'type' => 'integer',
+    'description' => t("The status of the organization."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget organizations',
+    'required' => TRUE,
+    'schema field' => 'active',
+  );
+  $properties['budget_category'] = array(
+    'label' => t("Budget Category"),
+    'type' => 'text',
+    'description' => t("The category this budget is in."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget organizations',
+    'required' => TRUE,
+    'schema field' => 'budget_category',
+  );  
+}
+/**
+ * Returns an initialized budget organizations object.
  *
  * @param $type
- *   The machine-readable type of the artwork.
+ *   The machine-readable type of the organization.
  *
  * @return
- *   An artwork object with all default fields initialized.
+ *   An organization object with all default fields initialized.
  */
 function budgetsys_org_new($type = '') {
   return entity_get_controller('budgetsys_org')->create();
