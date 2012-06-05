@@ -59,24 +59,10 @@ function budgetsys_line_budget_view($line_item, $view_mode = 'full') {
        if(user_access('view budget organizations')) {                       // If the user can view budget organization reformat the organization
            $line_item->content['organization'] = budgetsys_create_link($organization->title, $org_path); // As a link
        }
-
-        
      }       
   $account = $line_item->account_number;
-  
-  $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);                // Gets the prior years to be displayed
-  foreach($years as $year) {    
-    $temp_line = budgetsys_line_load_bv($account, $year);                   // Loads the budget value
-    if($temp_line['bvid'] && user_access('edit budget values')) {           // If the budget value exists and the user can edit budget values
-      $formatted_line = budget_value_format_currency($temp_line['value']);  // format this number as a link to the edit page
-      $path = 'budget/value/'. $temp_line['bvid'] . '/edit';
-      $line_item->content['values'][] = budgetsys_create_link($formatted_line, $path); 
-    }
-    else {
-       $line_item->content['values'][] = budget_value_format_currency($temp_line['value']); // If the user cannot edit budget values or this budget value
-       $line_item->content['bvids'][] = $temp_line['bvid'];                                 // doesn't exist format it as a regular value
-    }
-  }
+
+  $line_item->content['values'] = budgetsys_load_budget_line_item($account);
   $line_item->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
   $line_item->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);          // Provides the prior years for display
 

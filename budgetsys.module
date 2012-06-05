@@ -360,7 +360,18 @@ function budget_value_format_currency($value) {
 function budgetsys_example() {
   
 }
-
+/**
+ * function to create a link render item. Returns the render array.
+ * 
+ * @param $text
+ *  The text of the link
+ * 
+ * @param $path
+ *  The path the link leads to
+ * 
+ * @return
+ *  see above
+ */
 function budgetsys_create_link($text, $path) {
   $link = array(
     '#theme' => 'link',
@@ -373,4 +384,36 @@ function budgetsys_create_link($text, $path) {
   );
   
   return $link;
+}
+/**
+ * Takes an account number and optionally a set of years and returns an array.
+ * This array contains the budget values, if they exist for the accounts for
+ * the specified years. If the user can edit the budget values it returns them
+ * as a link to the edit page.
+ * 
+ * @param $account
+ *  The account number that needs to be displayed
+ * 
+ * @param $years
+ *  An optional array of fiscal years
+ * 
+ * @return
+ *  An array of budget values 
+ */
+function budgetsys_load_budget_line_item($account, $years = NULL) {
+   if($years == NULL) {
+      $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);                // Gets the prior years to be displayed
+    }
+  foreach($years as $year) {    
+    $temp_line = budgetsys_line_load_bv($account, $year);                   // Loads the budget value
+    if($temp_line['bvid'] && user_access('edit budget values')) {           // If the budget value exists and the user can edit budget values
+      $formatted_line = budget_value_format_currency($temp_line['value']);  // format this number as a link to the edit page
+      $path = 'budget/value/'. $temp_line['bvid'] . '/edit';
+      $line_item[] = budgetsys_create_link($formatted_line, $path); 
+    }
+    else {
+       $line_item[] = budget_value_format_currency($temp_line['value']); // If the user cannot edit budget values or this budget value
+     }                                                                             // doesn't exist format it as a regular value
+  }
+  return $line_item;
 }
