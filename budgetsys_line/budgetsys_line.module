@@ -121,7 +121,15 @@ function budgetsys_line_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
-  
+  $items[$budget_line_uri . '/view/budget-line'] = array(
+    'title callback' => 'entity_label',
+    'title arguments' => array('budgetsys_line', $budget_line_uri_argument_position),
+    'page callback' => 'budgetsys_line_budget_view',
+    'page arguments' => array($budget_line_uri_argument_position),
+    'access callback' => 'entity_access',
+    'access arguments' => array('view', 'budgetsys_line_type', $budget_line_uri_argument_position),
+    'file' => 'budgetsys_line.pages.inc',
+  );  
   $items[$budget_line_uri . '/delete'] = array(
     'title' => 'Delete task',
     'title callback' => 'budgetsys_line_label',
@@ -165,6 +173,15 @@ function budgetsys_line_menu() {
     'file' => 'budgetsys_line.admin.inc',
   );
   
+  $items['admin/config/system/budget_system_line'] = array(
+    'title' => t('Budget System Line Item Configuration'),
+    'description' => 'Configuration for the Budget System Line Item module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' =>array('budgetsys_line_configuration_form'),
+    'access arguments' => array('administer budget system'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'budgetsys_line.settings.inc',
+  );
   return $items;
 }
 
