@@ -60,13 +60,24 @@ function budgetsys_form($form, &$form_state, $budget_value) {
     '#required' => TRUE,
   );
    $form['year'] = array(
-    '#type' => 'textfield',
+    '#type' => 'select',
     '#description' => 'The fiscal year this account is for.',
     '#title' => t('Account Year'),
-    '#default_value' => ( isset($budget_value->year) ? $budget_value->year : ''),
+    '#default_value' => $budget_value->year,
+    '#options' => budgetsys_load_years_list(),
     '#weight' => -3,
     '#required' => TRUE,
   );
+  if(module_exists('budgetsys_org')) {
+    module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $form['oid'] = array(
+    '#type' => 'select',
+    '#title' => t('Organization'),
+    '#default_value' => $budget_value->oid,
+    '#options' => budgetsys_org_organization_select_list(),  
+    '#required' => TRUE,
+  );
+  }
   $form['revision'] = array(
     '#access' => user_access('administer budget values'),
     '#type' => 'checkbox',
@@ -119,6 +130,7 @@ function budgetsys_form_submit($form, &$form_state) {
   $budget_value->account_number = $form_state['values']['account_number'];
   $budget_value->value = $form_state['values']['value'];
   $budget_value->year = $form_state['values']['year'];
+  $budget_value->oid = $form_state['values']['oid'];
   // Notify field widgets.
   field_attach_submit('budget_value', $budget_value, $form, $form_state);
   // Save the artwork.
@@ -140,6 +152,10 @@ function budget_value_page_view($budget_value, $view_mode = 'full') {
     $budget_value->content['value'] = budget_value_format_currency($budget_value->value);
     $budget_value->content['year'] = $budget_value->year;
     $budget_value->content['type'] = $budget_value->type;
+    if(module_exists('budgetsys_org')) {
+      $organization = budgetsys_org_load($budget_value->oid);
+      $budget_value->content['organization'] = $organization->title;
+    }
     // Build fields content.
     field_attach_prepare_view('budget_value', array($budget_value->bvid => $budget_value), $view_mode);
     entity_prepare_view('budget_value', array($budget_value->bvid => $budget_value));

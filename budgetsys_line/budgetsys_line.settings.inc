@@ -4,21 +4,7 @@
  * Form builder; Build the Budget Line Items settings form.
  */
 function budgetsys_line_configuration_form($form, &$form_state) {
-  // Setting for allowing a span of 2 years for a fiscal year
-  $form['budgetsys_line_multiyear_fiscal_year'] = array(
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('budgetsys_line_multiyear_fiscal_year', 0),
-    '#title' => t('Multiyear Fiscal Year?'),
-    '#description' => t('Check this box if your organization uses a multiyear value for fiscal year. i.e. 2012-2013'),
-  );
-  // The current budgeting year
-  $form['budgetsys_line_current_fiscal_year'] = array(
-    '#type' => 'textfield',
-    '#default_value' => variable_get('budgetsys_line_current_fiscal_year', ''),
-    '#title' => t('Current Budgeting Year'),
-    '#description' => t('Please enter the year for which you are assembling a budget for. <br>If you are assembling a budget enter the current fiscal year.'),
-    '#size' => 9,
-  ); 
+
   // Number of proior years to display 
   $form['budgetsys_line_num_prior_years'] = array(
     '#type' => 'select',

@@ -265,4 +265,34 @@ function budgetsys_theme($existing, $type, $theme, $path) {
     ),
   );
 }
- 
+
+/**
+ * Creates an array of budget_categories from the variable.
+ * 
+ * @return $budget_allowed_years
+ * An array of allowed years from the budgetsys_allowed_fiscal_years
+ * variable.
+ */
+function budgetsys_load_years() {
+  $budget_allowed_years_string = variable_get('budgetsys_allowed_fiscal_years');
+  $budget_allowed_years = explode(', ', $budget_allowed_years_string);
+  return $budget_allowed_years;
+}
+/**
+ * Generates a list of allowed years. Both the index
+ * and the values are the translated allowed years.
+ * 
+ * @return $list
+ * An array of allowed years, keyed by the allowed years.
+ * 
+ */
+function budgetsys_load_years_list() {
+  $allowed_years = budgetsys_load_years();
+  $list = array();
+
+  foreach($allowed_years as $allowed_year) {
+    $list[t($allowed_year)] = t($allowed_year);
+  }
+  
+  return $list;
+}

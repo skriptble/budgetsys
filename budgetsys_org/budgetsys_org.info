@@ -10,4 +10,4 @@ files[] = budgetsys_org.pages.inc
 files[] = budget_sys.api.inc
 
 dependencies[] = entity
-dependencies[] = budgetsys
+;dependencies[] = budgetsys

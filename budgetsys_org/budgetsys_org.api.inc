@@ -93,8 +93,8 @@ function budgetsys_org_organization_select_list() {
    $items[$budget_categories[-1]] = array();                      // Makes an array with a key of the budget category
    $budget_category = $budget_categories[-1];                     // Sets the budget category into its own variable 
    unset($budget_categories[-1]);                                 // Removes the budget category from the array so it does not get printed in the list
-    foreach($budget_categories as $organization) {
-      $items[$budget_category][] = $organization;                 // Fills the budget category array with the associated organizations
+    foreach($budget_categories as $oid =>$organization) {
+      $items[$budget_category][$oid] = $organization;                 // Fills the budget category array with the associated organizations
     }
   }
       return $items;

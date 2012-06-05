@@ -19,4 +19,10 @@
         <th>Account Type</th>
         <td><?php echo render($content['type']); ?></td>
       </tr>
+  <?php if(module_exists('budgetsys_org')) : ?>
+       <tr>
+        <th>Organization</th>
+        <td><?php echo render($content['organization']); ?></td>
+      </tr>   
+    <?php endif; ?>
     </table>

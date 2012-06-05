@@ -62,7 +62,7 @@ function budgetsys_schema() {
         'type' => 'float',
         'not null' => TRUE,
       ),
-      'organization' => array(         
+      'oid' => array(         
         'description' => 'The organization associated with this budget value',
         'type' => 'int',
         'not null' => TRUE,
@@ -129,7 +129,7 @@ function budgetsys_schema() {
         'type' => 'float',
         'not null' => TRUE,
       ),
-      'organization' => array(         
+      'oid' => array(         
         'description' => 'The organization associated with this budget value',
         'type' => 'int',
         'not null' => TRUE,
@@ -148,162 +148,21 @@ function budgetsys_schema() {
       ),
     ),
   );
-  $schema['budgetsys_line_item'] = array(
-    'description' => 'The base table for line items.',
-    'fields' => array(
-      'lid' => array(
-        'description' => 'The primary identifier for a line item.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'vid' => array(
-        'description' => 'The current {budget_line_item_revision}.vid version identifier.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'title' => array(
-        'description' => 'The title of this line item.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'created' => array(
-        'description' => 'The Unix timestamp when the line item was created.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        ),
-      'changed' => array(
-        'description' => 'The Unix timestamp when the line item was most recently saved.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        ),
-      'account_number' => array(
-        'description' => 'The account number this line item belongs to.',
-        'type' => 'varchar',
-        'length' => 10,
-        'not null' => TRUE,
-      ),
-      'year' => array(
-        'description' => 'The budgeting fiscal year this line item belongs to.',
-        'type' => 'varchar',
-        'length' => 9,
-        'not null' => TRUE,
-        'default' => '2011-2012',
-      ),
-      'type' => array(
-        'description' => 'The type of account line item.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-        'default' => 'expenditure',
-      ),
-      'organization' => array(
-        'description' => 'The organization this line item belongs to.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,        
-      ),
-    ),
-    'unique keys' => array(
-      'lid_vid' => array('lid', 'vid'),
-      'lid' => array('lid'),
-    ),
-    'primary key' => array('lid'),
-  );
-  $schema['budgetsys_line_item_revision'] = array(
-    'description' => 'Stores information about each saved version of a {budgetsys_line_item}.',
-    'fields' => array(
-      'lid' => array(
-        'description' => 'The {budgetsys_line_item} this version belongs to.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'vid' => array(
-        'description' => 'The primary indetifier for this version.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      ),
-      'title' => array(
-        'description' => 'The title of this line item.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'created' => array(
-        'description' => 'The Unix timestamp when the line item was created.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        ),
-      'changed' => array(
-        'description' => 'The Unix timestamp when the line item was most recently saved.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        ),
-      'account_number' => array(
-        'description' => 'The account number this line item belongs to.',
-        'type' => 'varchar',
-        'length' => 10,
-        'not null' => TRUE,
-      ),
-      'year' => array(
-        'description' => 'The budgeting fiscal year this line item belongs to.',
-        'type' => 'varchar',
-        'length' => 9,
-        'not null' => TRUE,
-        'default' => '2011-2012',
-      ),
-      'type' => array(
-        'description' => 'The type of account line item.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-        'default' => 'expenditure',
-      ),
-      'organization' => array(
-        'description' => 'The organization this line item belongs to.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,        
-      ),
-    'indexes' => array(
-      'lid' => array('lid'),
-    ),
-    'primary key' => array('vid'),
-    'foreign keys' => array(
-      'budgetsys_line_item' => array(
-        'table' => 'budgetsys_line_item',
-        'columns' => array(
-          'lid' => 'lid',
-        ),
-      ),
-    ),
-  );
+
   return $schema;
 }
 /**
  * Adding a new column to the {budgetsys_budget_value} and {budgetsys_budget_value_revision} tables for organizations
  */
-function budgetsys_update_7000() {
+function budgetsys_update_7001() {
     $spec = array(
         'description' => 'The organization associated with this budget value',
         'type' => 'int',
         'not null' => FALSE,
       ); 
-  db_add_field( 'budgetsys_budget_value', 'organization', $spec);
-  db_add_field( 'budgetsys_budget_value_revision', 'organization', $spec);
+  db_add_field( 'budgetsys_budget_value', 'oid', $spec);
+  db_add_field( 'budgetsys_budget_value_revision', 'oid', $spec);
   return t('The update was completed successfully! The new column has been added.');
   
 }
+

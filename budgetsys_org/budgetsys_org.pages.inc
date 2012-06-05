@@ -2,8 +2,6 @@
 
 function budgetsys_org_add() {
   global $user;
-
-  
   $budget_org = entity_get_controller('budgetsys_org')->create();
   drupal_set_title(t('Create Organization'));
   return drupal_get_form('budgetsys_org_form', $budget_org);
