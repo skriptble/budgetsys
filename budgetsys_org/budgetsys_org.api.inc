@@ -109,3 +109,25 @@ function budgetsys_org_load_org_budget_lines($oid) {
   $result = $query->execute()->fetchAllAssoc('account_number');            // Execute and place in an array keyed by the oid
   return $result;
 }
+/**
+ * Loads a list of organization ids.
+ * 
+ * @param $budget_category
+ *  An optional category that will limit the results to organizations
+ * only of that category.
+ * 
+ * @return
+ *  An array of the organization ids (oids).
+ */
+function budgetsys_org_load_oids($budget_category = NULL) {
+
+  $query = db_select('budgetsys_org', 'o');                     // Select FROM budget_sys
+  $query->fields('o',array('oid'));                     // oid, o.title
+  $query->condition('active', 1, '=');                          // WHERE active = 1
+  if($budget_category) {
+  $query->condition('budget_category', $budget_category, '=');  // ,budget_category = $budget_category
+  }
+  $result = $query->execute()->fetchCol();            // Execute and place in an array keyed by the oid
+
+  return $result;
+}

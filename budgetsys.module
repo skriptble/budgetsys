@@ -62,6 +62,28 @@ function budgetsys_menu() {
     'type' => MENU_NORMAL_ITEM,
   
   );
+  $items['budget/full'] = array(
+    'title' => 'Budget',
+    'description' => 'The entire budget displayed by budget category',
+    'page callback' => 'budgetsys_view_budget',
+    'page arguments' => array(2,3),
+    'access arguments' => array('view content'),
+    'file' => 'budgetsys.pages.inc',
+  );
+  $items['budget/full/all-lines'] = array(
+    'title' => 'All Lines',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'access arguments' => array('view content'),
+  );
+  if(module_exists('budgetsys_org')) {
+  $items['budget/full/organization'] = array(
+    'title' => 'Organization',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'budgetsys_view_budget_organization',
+    'access arguments' => array('view content'),
+    'file' => 'budgetsys.pages.inc',
+  );
+  }
   $items['admin/structure/budgetvalue'] = array(
     'title' => 'Manage Budget Values',
     'description' => 'Manage the Budget Values.',
@@ -271,6 +293,16 @@ function budgetsys_theme($existing, $type, $theme, $path) {
       'template' => 'budget_value',
       'path' => drupal_get_path('module', 'budgetsys') . "/templates",
     ),
+    'budgetsys_full_budget' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_full_budget',
+      'path' => drupal_get_path('module','budgetsys') . '/templates',
+    ),
+    'budgetsys_full_budget_organizations' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_full_budget_organizations',
+      'path' => drupal_get_path('module','budgetsys') . '/templates',      
+    ),
   );
 }
 
@@ -401,6 +433,7 @@ function budgetsys_create_link($text, $path) {
  *  An array of budget values 
  */
 function budgetsys_load_budget_line_item($account, $years = NULL) {
+  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
    if($years == NULL) {
       $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);                // Gets the prior years to be displayed
     }
@@ -416,4 +449,43 @@ function budgetsys_load_budget_line_item($account, $years = NULL) {
      }                                                                             // doesn't exist format it as a regular value
   }
   return $line_item;
+}
+
+function budgetsys_load_complete_organization_budget($budget_org) {
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $accounts = budgetsys_org_load_org_budget_lines($budget_org->oid);
+  $budget_org->content['org_title'] = $budget_org->title;
+  $delta = 0;
+  foreach($accounts as $account) {
+    $budget_org->content['title'][$delta] = $account->title;                       // Sets the title
+    $budget_org->content['account_number'][$delta] = $account->account_number;     // Sets the account number
+    $budget_org->content['line_item_type'][$delta] = $account->type; 
+    $budget_org->content['values'][$delta] = budgetsys_load_budget_line_item($account->account_number);
+    $delta++;
+  }
+     $budget_org->content['delta'] = $delta;
+     $budget_org->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
+     $budget_org->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);
+  return $budget_org->content;
+}
+
+function budgetsys_load_complete_budget_line_items($line_item) {
+    module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api');       // Provides functions
+    $line_item->content['title'] = $line_item->title;                       // Sets the title
+    $line_item->content['account_number'] = $line_item->account_number;     // Sets the account number
+    $line_item->content['line_item_type'] = $line_item->type;               // Sets the line item type
+     if(module_exists('budgetsys_org')) {
+        $organization = budgetsys_org_load($line_item->oid);                // load the budget organization
+        $org_path = 'budget/org/' . $organization->oid;                      
+        $line_item->content['organization'] = $organization->title;         // Set the organization title
+       if(user_access('view budget organizations')) {                       // If the user can view budget organization reformat the organization
+           $line_item->content['organization'] = budgetsys_create_link($organization->title, $org_path); // As a link
+       }
+     }       
+  $account = $line_item->account_number;
+  $line_item->content['values'] = budgetsys_load_budget_line_item($account);
+  $line_item->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
+  $line_item->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);          // Provides the prior years for display
+  
+  return $line_item->content; 
 }

@@ -4,6 +4,13 @@
  * Form builder; Build the Budget Values settings form.
  */
 function budget_value_configuration_form($form, &$form_state) {
+  // The name of the budget
+  $form['budgetsys_budget_name'] = array(
+    '#type' => 'textfield',
+    '#default_value' => variable_get('budgetsys_budget_name', ''),
+    '#title' => t('Budget Name'),
+    '#description' => t('Please enter the name of the budget.'),
+  ); 
   // Selectable currency symbol used when displaying monetary values
   $form['budgetsys_budget_value_currency_symbol'] = array(
     '#type' => 'textfield',

@@ -173,7 +173,6 @@ function budgetsys_org_active_translate($status) {
  */
 function budgetsys_org_budget_view($budget_org, $view_mode = 'full') {
   module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
-  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
   $accounts = budgetsys_org_load_org_budget_lines($budget_org->oid);
   $budget_org->content['org_title'] = $budget_org->title;
   $delta = 0;
