@@ -23,10 +23,15 @@ function budgetsys_line_page_view($line_item, $view_mode = 'full') {
     
     $line_item->content['title'] = $line_item->title;
     $line_item->content['account_number'] = $line_item->account_number;
-if(module_exists('budgetsys_org')) {
-    $organization = budgetsys_org_load($line_item->oid);
-    $line_item->content['organization'] = $organization->title;
-}  
+
+     if(module_exists('budgetsys_org')) {
+        $organization = budgetsys_org_load($line_item->oid);                // load the budget organization
+        $org_path = 'budget/org/' . $organization->oid;                      
+        $line_item->content['organization'] = $organization->title;         // Set the organization title
+       if(user_access('view budget organizations')) {                       // If the user can view budget organization reformat the organization
+           $line_item->content['organization'] = budgetsys_create_link($organization->title, $org_path); // As a link
+       }
+     } 
     $line_item->content['year'] = $line_item->year;
     $line_item->content['line_item_type'] = $line_item->type;
     // Build fields content.
@@ -61,7 +66,6 @@ function budgetsys_line_budget_view($line_item, $view_mode = 'full') {
        }
      }       
   $account = $line_item->account_number;
-
   $line_item->content['values'] = budgetsys_load_budget_line_item($account);
   $line_item->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
   $line_item->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);          // Provides the prior years for display
