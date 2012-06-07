@@ -17,9 +17,17 @@ function budgetsys_budget_value_add($type) {
     return MENU_NOT_FOUND;
   }
   
-  $artwork = entity_get_controller('budget_value')->create($types);
+
+  $budget_value = entity_get_controller('budget_value')->create($type);
+
   drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
-  return drupal_get_form($type . '_budget_value_form', $artwork);
+  return drupal_get_form($type . '_budget_value_form', $budget_value);
+}
+
+function budget_value_page_edit ($budget_value) {
+    $types = budgetsys_budget_value_types();
+    drupal_set_title(t('<em>Edit @type</em>', array('@type' => $types[$budget_value->type]->name, '@atitle' => $budget_value->title)), PASS_THROUGH);
+    return drupal_get_form($budget_value->type . '_budget_value_form', $budget_value);
 }
 /**
 * Implements hook_form().
@@ -34,14 +42,14 @@ function budgetsys_form($form, &$form_state, $budget_value) {
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
-    '#default_value' => $budget_value->title,
+    '#default_value' => ( isset($budget_value->title) ? $budget_value->title : ''),
     '#weight' => -5,
     '#required' => TRUE,
   );
   $form['account_number'] = array(
     '#type' => 'textfield',
     '#title' => t('Account Number'),
-    '#default_value' => 'N0000',
+    '#default_value' => ( isset($budget_value->account_number) ? $budget_value->account_number : ''),
     '#weight' => -4,
     '#required' => TRUE,
   );
@@ -49,18 +57,29 @@ function budgetsys_form($form, &$form_state, $budget_value) {
     '#type' => 'textfield',
     '#description' => 'Only use number values with no commas or a $',
     '#title' => t('Account Value'),
-    '#default_value' => '1000.00',
+    '#default_value' => ( isset($budget_value->value) ? $budget_value->value : ''),
     '#weight' => -3,
     '#required' => TRUE,
   );
    $form['year'] = array(
-    '#type' => 'textfield',
+    '#type' => 'select',
     '#description' => 'The fiscal year this account is for.',
     '#title' => t('Account Year'),
-    '#default_value' => '2011-2012',
+    '#default_value' => $budget_value->year,
+    '#options' => budgetsys_load_years_list(),
     '#weight' => -3,
     '#required' => TRUE,
   );
+  if(module_exists('budgetsys_org')) {
+    module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $form['oid'] = array(
+    '#type' => 'select',
+    '#title' => t('Organization'),
+    '#default_value' => $budget_value->oid,
+    '#options' => budgetsys_org_organization_select_list(),  
+    '#required' => TRUE,
+  );
+  }
   $form['revision'] = array(
     '#access' => user_access('administer budget values'),
     '#type' => 'checkbox',
@@ -76,9 +95,9 @@ function budgetsys_form($form, &$form_state, $budget_value) {
     '#weight' => 5,
     '#submit' => array('budgetsys_form_submit'),
   );
-  if (!empty($artwork->aid)) {
+  if (!empty($budget_value->bvid)) {
     $form['buttons']['delete'] = array(
-      '#access' => user_access('delete artworks'),
+      '#access' => user_access('delete budget values'),
       '#type' => 'submit',
       '#value' => t('Delete'),
       '#weight' => 15,
@@ -104,8 +123,8 @@ function budgetsys_form_validate($form, &$form_state) {
 function budgetsys_form_submit($form, &$form_state) {
   global $user;
   $budget_value = &$form_state['budget_value'];
-  // Set the artwork's uid if it's being created at this time.
-  if (empty($artwork->uid)) {
+  // Set the budget value's uid if it's being created at this time.
+  if (empty($budget_value->uid)) {
     $budget_value->uid = $user->uid;
   }
   $budget_value->title = $form_state['values']['title'];
@@ -113,6 +132,7 @@ function budgetsys_form_submit($form, &$form_state) {
   $budget_value->account_number = $form_state['values']['account_number'];
   $budget_value->value = $form_state['values']['value'];
   $budget_value->year = $form_state['values']['year'];
+  $budget_value->oid = $form_state['values']['oid'];
   // Notify field widgets.
   field_attach_submit('budget_value', $budget_value, $form, $form_state);
   // Save the artwork.
@@ -121,7 +141,37 @@ function budgetsys_form_submit($form, &$form_state) {
   drupal_set_message(t('Budget Value saved.'));
   $form_state['redirect'] = 'budget/value/' . $budget_value->bvid;
 }
-
+function budget_value_page_view($budget_value, $view_mode = 'full') {
+    // Remove previously built content, if exists.
+    $budget_value->content = array();
+    if ($view_mode == 'teaser') {
+      $budget_value->content['title'] = array(
+        '#markup' => filter_xss($budget_value->title),
+        '#weight' => -5,
+      );
+    }
+    $budget_value->content['account_number'] = $budget_value->account_number;
+    $budget_value->content['value'] = budget_value_format_currency($budget_value->value);
+    $budget_value->content['year'] = $budget_value->year;
+    $budget_value->content['type'] = $budget_value->type;
+    if(module_exists('budgetsys_org')) {
+      $organization = budgetsys_org_load($budget_value->oid);
+      $budget_value->content['organization'] = $organization->title;
+    }
+    // Build fields content.
+    field_attach_prepare_view('budget_value', array($budget_value->bvid => $budget_value), $view_mode);
+    entity_prepare_view('budget_value', array($budget_value->bvid => $budget_value));
+    $budget_value->content += field_attach_view('budget_value', $budget_value, $view_mode);
+    
+    $budget_value->content += array(
+      '#theme' => 'budget_value',
+      '#element' => $budget_value,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+    );
+    
+    return $budget_value->content;
+}
 function budget_value_form_delete_submit ($form, &$form_state) {
     $destination = array();
     if (isset($_GET['destination'])) {
@@ -130,4 +180,79 @@ function budget_value_form_delete_submit ($form, &$form_state) {
     }
     $budget_value = $form['#budget_value'];
     $form_state['redirect'] = array('budget/value/' . $budget_value->bvid . '/delete', array('query' => $destination));
+}
+function budget_value_delete_confirm($form, &$form_state, $budget_value) {
+    $form['#budget_value'] = $budget_value;
+    // Always provide entity id in the same form key as in the entity edit form.
+    $form['bvid'] = array('#type' => 'value', '#value' => $budget_value->bvid);
+    return confirm_form($form,
+    t('Are you sure you want to delete %title?', array('%title' => $budget_value->title)),
+    'budget/value/' . $budget_value->bvid,
+    t('This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel')
+    );
+}
+function budget_value_delete_confirm_submit($form, &$form_state) {
+    if ($form_state['values']['confirm']) {
+        $budget_value = budget_value_load($form_state['values']['bvid']);
+        budget_value_delete($form_state['values']['bvid']);
+        watchdog('budgetsys_budget_value', '@type: deleted %title.', array('@type' => $budget_value->type, '%title' => $budget_value->title));
+        $types = budgetsys_budget_value_types();
+        drupal_set_message(t('@type %title has been deleted.', array('@type' => $types[$budget_value->type]->name, '%title' => $budget_value->title)));
+    }
+    $form_state['redirect'] = '<front>';
+}
+
+/**
+ * Build content for the full budget view
+ */
+function budgetsys_view_budget($budget_category = NULL) {
+  $budget = new stdClass;
+  if(!module_exists('budgetsys_org')) {
+    drupal_set_message(t('The Budget System Organization module is not enabled!'), 'warning');
+  }
+
+  if(!module_exists('budgetsys_line')) {
+    return drupal_set_message(t('The Budget System Line module is not enabled!<br>You cannot use this page without having this module enabled!'), 'error');
+  }
+  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
+  $budget_line_ids = budgetsys_line_load_all_lids();
+  $budget_lines = budgetsys_line_load_multiple($budget_line_ids);
+  $budget->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);
+  foreach($budget_lines as $budget_line) {
+    $line_item = budgetsys_load_complete_budget_line_items($budget_line);
+    $budget->content['budget_lines'][] = $line_item;
+  }
+  $budget->content += array(
+      '#theme' => 'budgetsys_full_budget',
+      '#element' => $budget,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+  );
+  drupal_set_title(variable_get('budgetsys_budget_name', '') . ' Budget');
+  return $budget->content;
+}
+
+/**
+ * Build content for full budget organization view
+ */
+function budgetsys_view_budget_organization($budget_category = NULL) {
+  $budget = new stdClass;
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $budget_org_ids = budgetsys_org_load_oids();
+  $budget_orgs = budgetsys_org_load_multiple($budget_org_ids);
+  foreach($budget_orgs as $budget_org) {
+    $organization = budgetsys_load_complete_organization_budget($budget_org);
+    $budget->content['organizations'][] = $organization;
+  }
+  $budget->content += array(
+      '#theme' => 'budgetsys_full_budget_organizations',
+      '#element' => $budget,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+  );
+  drupal_set_title(variable_get('budgetsys_budget_name', '') . ' Budget');
+  return $budget->content;
+  return drupal_set_message(t("A listing of organization's budgets"), 'status');
 }

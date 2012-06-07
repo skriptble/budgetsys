@@ -56,6 +56,8 @@ public function create($type = '') {
       'bvid' => '',
       'type' => $type,
       'title' => '',
+      'year' => variable_get('budgetsys_multiyear_fiscal_year'),
+      'oid' => NULL,
     );
   }
  public function save($budget_value) {
@@ -138,7 +140,7 @@ public function create($type = '') {
   }
 public function delete($bvids) {
   if (!empty($bvids)) {
-      $budget_value = $this->load($bvids, array());
+      $budget_values = $this->load($bvids, array());
       $transaction = db_transaction();
       try {
           db_delete('budgetsys_budget_value')
