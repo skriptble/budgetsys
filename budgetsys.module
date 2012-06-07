@@ -251,13 +251,7 @@ function budgetsys_budget_value_type_load($type) {
   return isset($types[$type]) ? $types[$type] : FALSE;
 }
 
-/**
-* Load a task.
-*/
-function budget_value_load($bvid, $reset = FALSE) {
-  $budget_values = budget_value_load_multiple(array($bvid), array(), $reset);
-  return reset($budget_values);
-}
+
 /**
 * Load multiple tasks based on certain conditions.
 */
@@ -270,10 +264,6 @@ function budget_value_load_multiple($bvids = array(), $conditions = array(), $re
 */
 function budget_value_save($budget_value) {
   return entity_get_controller('budget_value')->save($budget_value);
-}
-
-function budget_value_load_multiple($bvids = array(), $conditions = array(), $reset = FALSE) {
-    return entity_load('budget_value', $bvids, $conditions, $reset);
 }
 
 function budget_value_load($bvid = NULL, $vid = NULL, $reset = FALSE) {
