@@ -35,7 +35,12 @@ function budgetsys_org_entity_info() {
  */
 function budgetsys_org_menu() {
   $items = array();
-
+  $items['budget/org/example'] = array(
+    'title' => 'Example',
+    'page callback' => 'budgetsys_org_example',
+    'access arguments' => array('view content'),
+    'file' => 'budgetsys_org.pages.inc',
+  );
   $items['budget/org/add'] = array(
     'title' => 'Add new organization',
     'page callback' => 'budgetsys_org_add',
@@ -57,6 +62,15 @@ function budgetsys_org_menu() {
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
+  );
+  $items['budget/org/%budgetsys_org/budget'] = array(
+    'title' => 'Budget',
+    'page callback' => 'budgetsys_org_budget_view',
+    'page arguments' => array(2),
+    'access arguments' => array('view budget organizations'),
+    'file' => 'budgetsys_org.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
     $items['budget/org/%budgetsys_org/edit'] = array(
     'title' => 'Edit',
@@ -173,6 +187,11 @@ function budgetsys_org_theme($existing, $type, $theme, $path) {
       'variables' => array('element' => null),
       'template' => 'budgetsys_org',
       'path' => drupal_get_path('module', 'budgetsys_org') . "/templates",
+    ),
+    'budgetsys_org_budget' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_org_budget',
+      'path' => drupal_get_path('module', 'budgetsys_org') . '/templates',
     ),
   );
 }

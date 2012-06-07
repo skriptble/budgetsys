@@ -168,4 +168,54 @@ function budgetsys_org_active_translate($status) {
   if($status == 1) { return 'Yes';}
   else return 'No';
 }
+/**
+ * Builds the content to display an organization's budget line items.
+ */
+function budgetsys_org_budget_view($budget_org, $view_mode = 'full') {
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
+  $accounts = budgetsys_org_load_org_budget_lines($budget_org->oid);
+  $budget_org->content['org_title'] = $budget_org->title;
+  $delta = 0;
+  foreach($accounts as $account) {
+    $budget_org->content['title'][$delta] = $account->title;                       // Sets the title
+    $budget_org->content['account_number'][$delta] = $account->account_number;     // Sets the account number
+    $budget_org->content['line_item_type'][$delta] = $account->type; 
+    $budget_org->content['values'][$delta] = budgetsys_load_budget_line_item($account->account_number);
+    $delta++;
+  }
+     $budget_org->content['delta'] = $delta;
+     $budget_org->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
+     $budget_org->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);
+    // Build fields content.
+    field_attach_prepare_view('budgetsys_org', array($budget_org->oid => $budget_org), $view_mode);
+    entity_prepare_view('budgetsys_org', array($budget_org->oid => $budget_org));
+    $budget_org->content += field_attach_view('budgetsys_org', $budget_org, $view_mode);  
+      $budget_org->content += array(
+      '#theme' => 'budgetsys_org_budget',
+      '#element' => $budget_org,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+    );
+  drupal_set_title($budget_org->title);    
+  return $budget_org->content;
+}
 
+function budgetsys_org_example() {
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
+  $examples = budgetsys_org_load_org_budget_lines(1);
+  foreach($examples as $example) {
+    print $example->account_number;
+    $bv = budgetsys_line_load_bv($example->account_number, '2011-2012');
+    print_r($bv);
+    print '<br><br>';
+    $value = budgetsys_load_budget_line_item($example->account_number);
+    print_r($value);
+    print render($value['0']);
+    print render($value['1']);
+    print '<br><br>';
+  }
+  
+  return 'hi';
+}

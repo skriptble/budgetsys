@@ -99,3 +99,13 @@ function budgetsys_org_organization_select_list() {
   }
       return $items;
 }
+
+function budgetsys_org_load_org_budget_lines($oid) {
+
+  $query = db_select('budgetsys_line', 'l');                     // Select FROM budget_sys
+  $query->fields('l',array('oid','lid', 'account_number', 'type', 'title'));                     // oid, o.title
+  $query->condition('oid', $oid, '=');                          // WHERE active = 1
+
+  $result = $query->execute()->fetchAllAssoc('account_number');            // Execute and place in an array keyed by the oid
+  return $result;
+}
