@@ -352,7 +352,7 @@ function budgetsys_line_type_access($op, $entity = NULL) {
  * Load task Type.
  */
 function budgetsys_line_type_load($line_item_type) {
-  return example_task_types($line_item_type);
+  return budgetsys_line_item_types($line_item_type);
 }
 
 /**
