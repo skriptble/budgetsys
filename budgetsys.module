@@ -9,7 +9,7 @@
  */
 function budgetsys_entity_info() {
   $return['budget_value'] = array(
-    'label' => t('Budget Value'),
+    'label' => t('Budget Value [old]'),
     'plural label' => t('Budget Values'),
     'description' => t('An entity type for budget values used in line items.'),
     'controller class' => 'BudgetsysBudgetValueController',
@@ -104,7 +104,7 @@ function budgetsys_menu() {
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
-  $items['budget/value/add'] = array(
+  $items['budget/value-old/add'] = array(
     'title' => 'Add new budget value',
     'page callback' => 'budgetsys_budget_value_add_page',
     'access arguments' => array('create budget values'),
@@ -114,7 +114,7 @@ function budgetsys_menu() {
   );
     foreach (budgetsys_budget_value_types() as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
-    $items['budget/value/add/' . $type_url_str] = array(
+    $items['budget/value-old/add/' . $type_url_str] = array(
       'title' => $type->name,
       'title callback' => 'check_plain',
       'page callback' => 'budgetsys_budget_value_add',
@@ -124,7 +124,7 @@ function budgetsys_menu() {
       'file' => 'budgetsys.pages.inc',
     );
   }
-  $items['budget/value/%budget_value'] = array(
+  $items['budget/value-old/%budget_value'] = array(
     'title callback' => 'budget_value_page_title',
     'title arguments' => array(2),
     'page callback' => 'budget_value_page_view',
@@ -133,12 +133,12 @@ function budgetsys_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'budgetsys.pages.inc',
   );
-  $items['budget/value/%budget_value/view'] = array(
+  $items['budget/value-old/%budget_value/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
-    $items['budget/value/%budget_value/edit'] = array(
+    $items['budget/value-old/%budget_value/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'budget_value_page_edit',
     'page arguments' => array(2),
@@ -148,7 +148,7 @@ function budgetsys_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'budgetsys.pages.inc',
   );
-    $items['budget/value/%budget_value/delete'] = array(
+    $items['budget/value-old/%budget_value/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('budget_value_delete_confirm', 2),
