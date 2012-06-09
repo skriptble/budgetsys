@@ -133,7 +133,7 @@ function budgetsys_value_menu() {
     'page arguments' => array('budgetsys_value_delete_form', $budget_value_uri_argument_position),
     'access callback' => 'entity_access',
     'access arguments' => array('edit', 'budgetsys_value', $budget_value_uri_argument_position),
-    'file' => 'budgetsys_value.admin.inc',
+    'file' => 'budgetsys_value.pages.inc',
   );
   
   $items[$budget_value_uri . '/edit'] = array(
@@ -142,7 +142,7 @@ function budgetsys_value_menu() {
     'page arguments' => array('budgetsys_value_form', $budget_value_uri_argument_position),
     'access callback' => 'entity_access',
     'access arguments' => array('edit', 'budgetsys_value', $budget_value_uri_argument_position),
-    'file' => 'budgetsys_value.admin.inc',
+    'file' => 'budgetsys_value.pages.inc',
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
@@ -154,7 +154,7 @@ function budgetsys_value_menu() {
       'page arguments' => array(3),
       'access callback' => 'entity_access',
       'access arguments' => array('create', 'budgetsys_value_type', $type),
-      'file' => 'budgetsys_value.admin.inc',
+      'file' => 'budgetsys_value.pages.inc',
     );
   }
 
