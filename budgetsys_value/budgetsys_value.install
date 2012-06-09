@@ -1,0 +1,217 @@
+<?php
+
+function budgetsys_value_schema() {
+  
+    $schema['budgetsys_value'] = array(
+    'description' => 'The base table for budget values.',
+    'fields' => array(
+      'bvid' => array(
+        'description' => 'The primary identifier for a budget value.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'description' => 'The current {budget_budget_value_revision}.vid version identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'The id of the creation user.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The title of this budget value.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the budget value was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the budget value was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'account_number' => array(
+        'description' => 'The account number this value belongs to.',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+        'default' => 'N0000',
+      ),
+      'year' => array(
+        'description' => 'The budgeting fiscal year this budget value belongs to.',
+        'type' => 'varchar',
+        'length' => 9,
+        'not null' => TRUE,
+        'default' => '2011-2012',
+      ),
+      'type' => array(
+        'description' => 'The type of account line item this value is tied to.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'expenditure',
+      ),
+      'value' => array(
+        'description' => 'The value for this budget value.',
+        'type' => 'float',
+        'not null' => TRUE,
+      ),
+      'oid' => array(         
+        'description' => 'The organization associated with this budget value',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),  
+    ),
+    'unique keys' => array(
+      'bvid_vid' => array('bvid', 'vid'),
+      'bvid' => array('bvid'),
+    ),
+    'primary key' => array('bvid'),
+  );
+  $schema['budgetsys_value_revision'] = array(
+    'description' => 'Stores information about each saved version of a {budget_budget_value}.',
+    'fields' => array(
+      'bvid' => array(
+        'description' => 'The {budget_budget_value} this version belongs to.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'vid' => array(
+        'description' => 'The primary indetifier for this version.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The id of the creation user.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The title of this budget value.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the budget value was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'account_number' => array(
+        'description' => 'The account number this value belongs to.',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+        'default' => 'N0000',
+      ),
+      'year' => array(
+        'description' => 'The budgeting fiscal year this budget value belongs to.',
+        'type' => 'varchar',
+        'length' => 9,
+        'not null' => TRUE,
+        'default' => '2011-2012',
+      ),
+      'type' => array(
+        'description' => 'The type of account line item this value is tied to.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'expenditure',
+      ),
+      'value' => array(
+        'description' => 'The value for this budget value.',
+        'type' => 'float',
+        'not null' => TRUE,
+      ),
+      'oid' => array(         
+        'description' => 'The organization associated with this budget value',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),        
+    ),
+    'indexes' => array(
+      'bvid' => array('bvid'),
+    ),
+    'primary key' => array('vid'),
+    'foreign keys' => array(
+      'budgetsys_value' => array(
+        'table' => 'budgetsys_value',
+        'columns' => array(
+          'bvid' => 'bvid',
+        ),
+      ),
+    ),
+  );
+  $schema['budgetsys_value_type'] = array(
+    'description' => 'Stores information about all defined value types.',
+    'fields' => array(
+      'vtid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique value type ID.',
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'value_type' => array(
+        'description' => 'The type of value this value contains.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),      
+      'label' => array(
+        'description' => 'The human-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'A brief description of this type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+        'translatable' => TRUE,
+      ),
+    ) + entity_exportable_schema_fields(),
+    'primary key' => array('vtid'),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Adds a uid column to the {budgetsys_value} and {budgetsys_value_revision} tables.
+ */
+function budgetsys_value_update_7000() {
+  $spec = array(
+        'description' => 'The id of the creation user.',
+        'type' => 'int',
+      ); 
+  db_add_field( 'budgetsys_value', 'uid', $spec);
+  db_add_field( 'budgetsys_value_revision', 'uid', $spec);
+  
+  return 'Successfully Updated!';
+}
