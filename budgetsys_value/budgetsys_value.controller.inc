@@ -24,6 +24,7 @@ class BudgetsysValueController extends EntityAPIController {
       'oid' => NULL,
       'account_number' => '',
       'uid' => $user->uid,
+      'value' => '',
     );
     return parent::create($values);
   }
