@@ -41,7 +41,7 @@ function budgetsys_value_type_form($form, &$form_state, $value_type, $op = 'edit
       'negative' => t('Only negative values.'),
       'both' => t('Both positive & negative values.'),
     ),
-    '#description' => t('Please select whether this type of value item can take positive, negative, or both types of values'),
+    '#description' => t('Please select whether this type of value  can take positive, negative, or both types of values'),
     '#required' => TRUE,
   );
   
@@ -129,7 +129,7 @@ function budgetsys_value_admin_add_page() {
 
 
 /**
- * Add new budget value item page callback.
+ * Add new budget value page callback.
  */
 function budgetsys_value_add($type) {
   $value_type = budgetsys_value_types($type);
@@ -210,7 +210,7 @@ function budgetsys_value_form($form, &$form_state, $value) {
 
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save Budget Value Item'),
+    '#value' => t('Save Budget Value'),
     '#submit' => $submit + array('budgetsys_value_form_submit'),
   );
 
