@@ -52,7 +52,7 @@ $return['budgetsys_line_type'] = array(
     'label' => t('Line Item Type'),
     'entity class' => 'LineItemType',
     'controller class' => 'LineItemTypeController',
-    'base table' => 'budgetsys_line_item_type',
+    'base table' => 'budgetsys_line_type',
     'fieldable' => FALSE,
     'bundle of' => 'budgetsys_line',
     'exportable' => TRUE,
@@ -410,4 +410,11 @@ function budgetsys_line_theme($existing, $type, $theme, $path) {
       'path' => drupal_get_path('module', 'budgetsys_line') . "/templates",
     ),
   );
+}
+
+/**
+ * Query the database for the value_type of a specific account.
+ */
+function budgetsys_line_value_type($account) {
+  return entity_get_controller('budgetsys_line')->queryValueType($account);
 }

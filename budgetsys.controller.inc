@@ -56,7 +56,7 @@ public function create($type = '') {
       'bvid' => '',
       'type' => $type,
       'title' => '',
-      'year' => variable_get('budgetsys_multiyear_fiscal_year'),
+      'year' => variable_get('budgetsys_current_fiscal_year'),
       'oid' => NULL,
     );
   }

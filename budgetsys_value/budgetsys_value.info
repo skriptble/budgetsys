@@ -1,0 +1,12 @@
+name = Budget System Value
+description = Provides the Budget Value component for the budget system.
+core = 7.x
+package = Budget System
+version = 7.x-dev
+files[] = budgetsys_value.module
+files[] = budgetsys_value.install
+files[] = budgetsys_value.controller.inc
+files[] = budgetsys_value.pages.inc
+
+dependencies[] = entity
+dependencies[] = budgetsys

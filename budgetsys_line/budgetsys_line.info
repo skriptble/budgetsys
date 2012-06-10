@@ -11,3 +11,4 @@ files[] = budgetsys_line.settings.inc
 
 dependencies[] = entity
 dependencies[] = budgetsys
+dependencies[] = budgetsys_value
