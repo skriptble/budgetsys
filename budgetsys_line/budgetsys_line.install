@@ -211,3 +211,11 @@ function budgetsys_line_update_7000() {
   
   return 'Successfully Updated!';
 }
+/**
+ * Renaming the {budgetsys_line_item_type} table.
+ */
+function budgetsys_line_update_7001() {
+  db_rename_table('budgetsys_line_item_type', 'budgetsys_line_type');
+  
+  return 'Successfully Updated!';
+}
