@@ -32,19 +32,6 @@ function budgetsys_value_type_form($form, &$form_state, $value_type, $op = 'edit
     '#description' => t('A unique machine-readable name for this value type. It must only contain lowercase letters, numbers, and underscores.'),
   );
   
-  $form['value_type'] = array(
-    '#title' => t('Types of Values'),
-    '#type' => 'radios',
-    '#default value' => '',
-    '#options' => array(
-      'positive' => t('Only positive values.'),
-      'negative' => t('Only negative values.'),
-      'both' => t('Both positive & negative values.'),
-    ),
-    '#description' => t('Please select whether this type of value  can take positive, negative, or both types of values'),
-    '#required' => TRUE,
-  );
-  
   $form['description'] = array(
     '#type' => 'textarea',
     '#default_value' => isset($value_type->description) ? $value_type->description : '',

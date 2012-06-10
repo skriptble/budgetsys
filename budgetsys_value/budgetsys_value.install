@@ -172,13 +172,7 @@ function budgetsys_value_schema() {
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
-      ),
-      'value_type' => array(
-        'description' => 'The type of value this value contains.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-      ),      
+      ), 
       'label' => array(
         'description' => 'The human-readable name of this type.',
         'type' => 'varchar',
@@ -212,6 +206,15 @@ function budgetsys_value_update_7000() {
       ); 
   db_add_field( 'budgetsys_value', 'uid', $spec);
   db_add_field( 'budgetsys_value_revision', 'uid', $spec);
+  
+  return 'Successfully Updated!';
+}
+
+/**
+ * Removing the value_type column from the {budgetsys_value_type} table.
+ */
+function budgetsys_value_update_7001() {
+  db_drop_field('budgetsys_value_type', 'value_type');
   
   return 'Successfully Updated!';
 }
