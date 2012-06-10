@@ -155,7 +155,7 @@ function budgetsys_line_schema() {
       ),
     ),
   );
-  $schema['budgetsys_line_item_type'] = array(
+  $schema['budgetsys_line_type'] = array(
     'description' => 'Stores information about all defined task types.',
     'fields' => array(
       'ltid' => array(
