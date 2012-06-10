@@ -1,0 +1,425 @@
+<?php
+
+/**
+ * @file 
+ * The main module file for the Budget System Value.
+ */
+/**
+ * Implements hook_entity_info().
+ */
+function budgetsys_value_entity_info() {
+  $return['budgetsys_value'] = array(
+    'label' => t('Budget Value'),
+    'plural label' => t('Budget Values'),
+    'description' => t('An entity type for budget values used in values.'),
+    'entity class' => 'BudgetsysValueClass',
+    'controller class' => 'BudgetsysValueController',
+    'base table' => 'budgetsys_value',
+    'revision table' => 'budgetsys_value_revision',
+    'fieldable' => TRUE,
+    'module' => 'budgetsys_value',
+    'load hook' => 'budgetsys_value_load',
+    'entity keys' => array(
+      'id' => 'bvid',
+      'revision' => 'vid',
+      'label' => 'title',
+      'bundle' => 'type',
+    ),
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'bundles' => array(),
+    'static cache' => TRUE,
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full content'),
+        'custom settings' => TRUE,
+      ),
+    ),
+   'label callback' => 'entity_class_label',
+   'uri callback' => 'entity_class_uri',
+   'access callback' => 'budgetsys_value_access',    
+  );
+/************************************************************************************
+    foreach (budgetsys_budget_value_types() as $type => $info) {
+    $return['budget_value']['bundles'][$type] = array(
+      'label' => $info->name,
+      'admin' => array(
+        'path' => 'admin/structure/budgetvalue/manage/%budgetsys_budget_value_type',
+        'real path' => 'admin/structure/budgetvalue/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer budget values'),
+      ),
+    );
+  }
+ *************************************************************************************/
+$return['budgetsys_value_type'] = array(
+    'label' => t('Budget Value Type'),
+    'entity class' => 'BudgetValueType',
+    'controller class' => 'BudgetValueTypeController',
+    'base table' => 'budgetsys_value_type',
+    'fieldable' => FALSE,
+    'bundle of' => 'budgetsys_value',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'vtid',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'module' => 'budgetsys_value',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/structure/budget/value',
+      'file' => 'budgetsys_value.admin.inc',
+      'controller class' => 'BudgetValueTypeUIController',
+    ),
+    'access callback' => 'budgetsys_value_type_access',
+  );   
+  return $return;
+}
+
+/**
+* Implements hook_entity_info_alter().
+*/
+function budgetsys_value_entity_info_alter(&$entity_info) {
+  foreach (budgetsys_value_types() as $type => $info) {
+    $entity_info['budgetsys_value']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/structure/budget/value-types/manage/%value_type',
+        'real path' => 'admin/structure/budget/value-types/manage/' . $type,
+        'bundle argument' => 4,
+      ),
+    );
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function budgetsys_value_menu() {
+    $items['budget/value/example'] = array(
+      'title' => 'Testing page',
+      'page callback' => 'budgetsys_value_example_page',
+      'access arguments' => array('view content'),
+      'type' => MENU_NORMAL_ITEM,
+      'file' => 'budgetsys_value.pages.inc',
+    );
+    $items['budget/value/add'] = array(
+    'title' => 'Add Budget Value',
+    'page callback' => 'budgetsys_value_admin_add_page',
+    'access arguments' => array('administer budget values'),
+    'file' => 'budgetsys_value.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+
+  );
+  $budget_value_uri = 'budget/value/%budgetsys_value';
+  $budget_value_uri_argument_position = 2;
+  
+  $items[$budget_value_uri] = array(
+    'title callback' => 'entity_label',
+    'title arguments' => array('budgetsys_value', $budget_value_uri_argument_position),
+    'page callback' => 'budgetsys_value_page_view',
+    'page arguments' => array($budget_value_uri_argument_position),
+    'access callback' => 'entity_access',
+    'access arguments' => array('view', 'budgetsys_value', $budget_value_uri_argument_position),
+    'file' => 'budgetsys_value.pages.inc',
+  );
+  
+  $items[$budget_value_uri . '/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items[$budget_value_uri . '/delete'] = array(
+    'title' => 'Delete Value',
+    'title callback' => 'budgetsys_value_label',
+    'title arguments' => array($budget_value_uri_argument_position),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('budgetsys_value_delete_form', $budget_value_uri_argument_position),
+    'access callback' => 'entity_access',
+    'access arguments' => array('edit', 'budgetsys_value', $budget_value_uri_argument_position),
+    'file' => 'budgetsys_value.pages.inc',
+  );
+  
+  $items[$budget_value_uri . '/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('budgetsys_value_form', $budget_value_uri_argument_position),
+    'access callback' => 'entity_access',
+    'access arguments' => array('edit', 'budgetsys_value', $budget_value_uri_argument_position),
+    'file' => 'budgetsys_value.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  
+  foreach (budgetsys_value_types() as $type => $info) {
+    $items['budget/value/add/' . $type] = array(
+      'title' => 'Add ' . entity_label('budgetsys_value_type', $info) . ' Value',
+      'page callback' => 'budgetsys_value_add',
+      'page arguments' => array(3),
+      'access callback' => 'entity_access',
+      'access arguments' => array('create', 'budgetsys_value_type', $type),
+      'file' => 'budgetsys_value.pages.inc',
+    );
+  }
+
+  $items['admin/structure/budget/value/%budgetsys_value_type/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('budgetsys_value_type_form_delete_confirm', 4),
+    'access arguments' => array('administer budget value items'),
+    'weight' => 1,
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'budgetsys_value.admin.inc',
+  );
+  
+  $items['admin/config/system/budget_system_value'] = array(
+    'title' => t('Budget System Value Configuration'),
+    'description' => 'Configuration for the Budget System Value module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' =>array('budgetsys_value_configuration_form'),
+    'access arguments' => array('administer budget system'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'budgetsys_value.settings.inc',
+  );
+  return $items;
+}
+
+/**
+* Implements hook_permission().
+*/
+function budgetsys_value_permission() {
+  $permissions = array(
+    'administer budget values' => array(
+      'title' => t('Administer budget values'),
+      'description' => t('Allows users to configure budget value types and their fields.'),
+      'restrict access' => TRUE,
+    ),
+    'create budget values' => array(
+      'title' => t('Create budget values'),
+      'description' => t('Allows users to create budget values.'),
+      'restrict access' => TRUE,
+    ),
+    'view budget values' => array(
+      'title' => t('View budget values'),
+      'description' => t('Allows users to view budget values.'),
+      'restrict access' => TRUE,
+    ),
+    'edit any budget values' => array(
+      'title' => t('Edit any budget values'),
+      'description' => t('Allows users to edit any budget values.'),
+      'restrict access' => TRUE,
+    ),
+    'edit own budget values' => array(
+      'title' => t('Edit own budget values'),
+      'description' => t('Allows users to edit own budget values.'),
+      'restrict access' => TRUE,
+    ),
+  );
+  return $permissions;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function budgetsys_value_entity_property_info_alter(&$info) {
+  $properties = &$info['budgetsys_value']['properties'];
+  $properties['created'] = array(
+    'label' => t("Date created"),
+    'type' => 'date',
+    'description' => t("The date the budget value was posted."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+    'label' => t("Date changed"),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t("The date the budget value was most recently updated."),
+  );
+  $properties['oid'] = array(
+    'label' => t("Organization"),
+    'type' => 'user',
+    'description' => t("The organization of the budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'oid',
+  );
+  $properties['account_number'] = array(
+    'label' => t("Account Number"),
+    'type' => 'varchar',
+    'description' => t("The account number of the budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'account_number',
+  );
+    $properties['year'] = array(
+    'label' => t("Fiscal Year"),
+    'type' => 'varchar',
+    'description' => t("The fiscal year of the budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'year',
+  );
+  $properties['uid'] = array(
+    'label' => t("Author"),
+    'type' => 'user',
+    'description' => t("The author of the budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'uid',
+  );
+  $properties['value'] = array(
+    'label' => t("Value"),
+    'type' => 'float',
+    'description' => t("The value of this budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'value',
+  );
+}
+/*******************************************************************************
+ ****************************** Budget Value API's ******************************
+ ******************************************************************************/
+/**
+* Access callback for Budget Value.
+*/
+function budgetsys_value_access($op, $budget_value, $account = NULL, $entity_type = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('administer budget value items', $account)
+          || user_access('create budget value items', $account);
+    case 'view':
+      return user_access('administer budget value items', $account)
+          || user_access('view budget value items', $account);
+    case 'edit':
+      return user_access('administer budget value items')
+          || user_access('edit any budget value items')
+          || (user_access('edit own budget value items') && ($budget_value->uid == $account->uid));
+  }
+}
+
+/**
+ * Load a budget value.
+ */
+function budgetsys_value_load($lid, $reset = FALSE) {
+  $budget_value = budgetsys_value_load_multiple(array($lid), array(), $reset);
+  return reset($budget_value);
+}
+
+/**
+ * Load multiple values based on certain conditions.
+ */
+function budgetsys_value_load_multiple($lids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('budgetsys_value', $lids, $conditions, $reset);
+}
+
+/**
+ * Save budget value.
+ */
+function budgetsys_value_save($value) {
+  entity_save('budgetsys_value', $value);
+}
+
+/**
+ * Delete single budget value.
+ */
+function budgetsys_value_delete($value) {
+  entity_delete('budgetsys_value', entity_id('budgetsys_value' ,$value));
+}
+
+/**
+ * Delete multiple budget values.
+ */
+function budgetsys_value_delete_multiple($value_ids) {
+  entity_delete_multiple('budgetsys_value', $value_ids);
+}
+
+/**
+ * Query the database for a specific budget value
+ */
+function budgetsys_value_query_values($account, $type, $year) {
+  return entity_get_controller('budgetsys_value')->queryValue($account, $type, $year);
+}
+
+/*******************************************************************************
+ ****************************** Budget Value Type API's *************************
+ ******************************************************************************/
+
+/**
+ * Access callback for value Type.
+ */
+function budgetsys_value_type_access($op, $entity = NULL) {
+  return user_access('administer budget value items');
+}
+
+/**
+ * Load value Type.
+ */
+function budgetsys_value_type_load($value_type) {
+  return budgetsys_value_types($value_type);
+}
+
+/**
+ * List of budget value types.
+ */
+function budgetsys_value_types($value_name = NULL) {
+  $types = entity_load_multiple_by_name('budgetsys_value_type', isset($value_name) ? array($value_name) : FALSE);
+  return isset($value_name) ? reset($types) : $types;
+}
+
+/**
+ * Save budget value type entity.
+ */
+function budgetsys_value_type_save($value_type) {
+  entity_save('budgetsys_value_type', $value_type);
+}
+
+/**
+ * Delete single budget value type.
+ */
+function budgetsys_value_type_delete($value_type) {
+  entity_delete('budgetsys_value_type', entity_id('budgetsys_value_type' ,$value_type));
+}
+
+/**
+ * Delete multiple value types.
+ */
+function budgetsys_value_type_delete_multiple($value_type_ids) {
+  entity_delete_multiple('budgetsys_value_type', $value_type_ids);
+}
+
+/**
+  * Implements hook_views_api().
+  */
+function budgetsys_value_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'budgetsys_value'),
+  );
+}
+
+/**
+ * Adds the theme specifications to the Theme Registry
+ */
+function budgetsys_value_theme($existing, $type, $theme, $path) {
+  return array(
+    'budget_value' => array(
+      'variables' => array('element' => null),
+      'template' => 'budget_value',
+      'path' => drupal_get_path('module', 'budgetsys_value') . "/templates",
+    ),
+  );
+}

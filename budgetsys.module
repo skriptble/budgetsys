@@ -1,0 +1,487 @@
+<?php
+
+/**
+ * @file 
+ * The main module file for the Budget System.
+ */
+/**
+ * Implements hook_entity_info().
+ */
+function budgetsys_entity_info() {
+  $return['budget_value'] = array(
+    'label' => t('Budget Value [old]'),
+    'plural label' => t('Budget Values'),
+    'description' => t('An entity type for budget values used in line items.'),
+    'entity class' => 'BudgetValue',
+    'controller class' => 'BudgetValueController',
+    'base table' => 'budgetsys_budget_value',
+    'revision table' => 'budgetsys_budget_value_revision',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+        'id' => 'bvid',
+      ),
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'bundles' => array(),
+    'load hook' => 'budget_value_load',
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full content'),
+        'custom settings' => FALSE,
+      ),
+    ),
+    'label callback' => 'entity_class_label',
+    'uri calback' => 'entity_class_uri',
+    'module' => 'budgetsys',
+    'access callback' => 'budget_value_access',
+  );
+
+    foreach (budgetsys_budget_value_types() as $type => $info) {
+    $return['budget_value']['bundles'][$type] = array(
+      'label' => $info->name,
+      'admin' => array(
+        'path' => 'admin/structure/budgetvalue/manage/%budgetsys_budget_value_type',
+        'real path' => 'admin/structure/budgetvalue/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer budget values'),
+      ),
+    );
+  }
+  return $return;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function budgetsys_menu() {
+  $items['budget/example'] = array(
+    'title' => 'Exampe Page',
+    'description' => 'An example page for testing.',
+    'page callback' => 'budgetsys_example',
+    'access arguments' => array('view content'),
+    'type' => MENU_NORMAL_ITEM,
+  
+  );
+  $items['budget/full'] = array(
+    'title' => 'Budget',
+    'description' => 'The entire budget displayed by budget category',
+    'page callback' => 'budgetsys_view_budget',
+    'page arguments' => array(2,3),
+    'access arguments' => array('view content'),
+    'file' => 'budgetsys.pages.inc',
+  );
+  $items['budget/full/all-lines'] = array(
+    'title' => 'All Lines',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'access arguments' => array('view content'),
+  );
+  if(module_exists('budgetsys_org')) {
+  $items['budget/full/organization'] = array(
+    'title' => 'Organization',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'budgetsys_view_budget_organization',
+    'access arguments' => array('view content'),
+    'file' => 'budgetsys.pages.inc',
+  );
+  }
+  $items['admin/structure/budgetvalue'] = array(
+    'title' => 'Manage Budget Values',
+    'description' => 'Manage the Budget Values.',
+    'page callback' => 'budgetsys_budget_value_overview_types',
+    'access arguments' => array('administer budget values'),
+    'file' => 'budgetsys.admin.inc',
+  );
+    $items['admin/structure/budgetvalue/manage/%budgetsys_budget_value_type'] = array(
+    'title' => 'View budget value type',
+    'title callback' => 'budgetsys_budget_value_type_page_title',
+    'title arguments' => array(4),
+    'page callback' => 'budgetsys_budget_value_information',
+    'page arguments' => array(4),
+    'access arguments' => array('administer budget values'),
+    'file' => 'budgetsys.admin.inc',
+  );
+    $items['admin/structure/budgetvalue/manage/%budgetsys_budget_value_type/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['budget/value-old/add'] = array(
+    'title' => 'Add new budget value',
+    'page callback' => 'budgetsys_budget_value_add_page',
+    'access arguments' => array('create budget values'),
+    'weight' => 1,
+    'menu_name' => 'management',
+    'file' => 'budgetsys.pages.inc',
+  );
+    foreach (budgetsys_budget_value_types() as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    $items['budget/value-old/add/' . $type_url_str] = array(
+      'title' => $type->name,
+      'title callback' => 'check_plain',
+      'page callback' => 'budgetsys_budget_value_add',
+      'page arguments' => array(3),
+      'access arguments' => array('create budget values'),
+      'description' => $type->description,
+      'file' => 'budgetsys.pages.inc',
+    );
+  }
+  $items['budget/value-old/%budget_value'] = array(
+    'title callback' => 'budget_value_page_title',
+    'title arguments' => array(2),
+    'page callback' => 'budget_value_page_view',
+    'page arguments' => array(2),
+    'access arguments' => array('view budget values'),
+    'type' => MENU_CALLBACK,
+    'file' => 'budgetsys.pages.inc',
+  );
+  $items['budget/value-old/%budget_value/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+    $items['budget/value-old/%budget_value/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'budget_value_page_edit',
+    'page arguments' => array(2),
+    'access arguments' => array('update budget values'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'budgetsys.pages.inc',
+  );
+    $items['budget/value-old/%budget_value/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('budget_value_delete_confirm', 2),
+    'access arguments' => array('delete budget values'),
+    'weight' => 1,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_INLINE,
+    'file' => 'budgetsys.pages.inc',
+  );
+  $items['admin/config/system/budget_system'] = array(
+    'title' => t('Budget System Configuration'),
+    'description' => 'Configuration for the Budget System module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' =>array('budget_value_configuration_form'),
+    'access arguments' => array('administer budget system'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'budgetsys.settings.inc',
+  );
+  return $items;
+}
+
+
+/**
+ * Budget System uri callback
+ */
+function budgetsys_uri($budget_value) {
+  return array(
+    'path' => 'budgetvalue/' . $budget_value->bvid
+  );
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function budgetsys_field_extra_fields() {
+  $extra = array();
+  foreach (budgetsys_budget_value_types() as $type) {
+    $extra['budget_value'][$type->type] = array(
+      'form' => array(
+        'title' => array(
+          'label' => t('Title'),
+          'description' => t('The name of the budget value'),
+          'weight' => -5,
+        ),
+      ),
+      'display' => array(
+        'title' => array(
+          'label' => t('Title'),
+          'description' => t('The name of the budget value'),
+          'weight' => -5,
+        ),
+      ),  
+    );
+  }
+  return $extra;
+}
+function budgetsys_budget_value_types() {
+  $types = &drupal_static(__FUNCTION__);
+  
+  if (empty($types)) {
+    $types['expenditure'] = (object)array(
+      'type' => 'expenditure',
+      'name' => t('Expenditure'),
+      'description' => t('An budget value that contains spent funding.')
+    );
+   $types['income'] = (object)array(
+     'type' => 'income',
+     'name' => t('Income'),
+     'description' => t('A budget value that conains incoming funding.')
+    ); 
+  }
+  return $types;
+}
+
+/**
+* Implements hook_forms().
+*/
+function budgetsys_forms() {
+  $forms = array();
+  if ($types = budgetsys_budget_value_types()) {
+    foreach (array_keys($types) as $type) {
+      $forms[$type . '_budget_value_form']['callback'] = 'budgetsys_form';
+    }
+  }
+  return $forms;
+}
+
+function budget_value_page_title($budget_value) {
+  return $budget_value->title;
+}
+
+function budgetsys_budget_value_type_page_title($type) {
+  return t('Manage @type', array('@type' => $type->name));
+}
+
+function budgetsys_budget_value_type_load($type) {
+  $types = budgetsys_budget_value_types();
+  $type = str_replace('-', '_', $type);
+  return isset($types[$type]) ? $types[$type] : FALSE;
+}
+
+
+/**
+* Load multiple tasks based on certain conditions.
+*/
+function budget_value_load_multiple($bvids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('budget_value', $bvids, $conditions, $reset);
+}
+
+/**
+* Save task.
+*/
+function budget_value_save($budget_value) {
+  return entity_get_controller('budget_value')->save($budget_value);
+}
+
+function budget_value_load($bvid = NULL, $vid = NULL, $reset = FALSE) {
+    $bvids = (isset($bvid) ? array($bvid) : array());
+    $conditions = (isset($vid) ? array('vid' => $vid) : array());
+    $budget_value = budget_value_load_multiple($bvids, $conditions, $reset);
+    return $budget_value ? reset($budget_value) : FALSE;
+}
+
+function budget_value_delete($bvid) {
+    return budget_value_delete_multiple(array($bvid));
+}
+function budget_value_delete_multiple($bvids) {
+    return entity_get_controller('budget_value')->delete($bvids);
+}
+/**
+ * Adds the theme specifications to the Theme Registry
+ */
+function budgetsys_theme($existing, $type, $theme, $path) {
+  return array(
+    'budget_value' => array(
+      'variables' => array('element' => null),
+      'template' => 'budget_value',
+      'path' => drupal_get_path('module', 'budgetsys') . "/templates",
+    ),
+    'budgetsys_full_budget' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_full_budget',
+      'path' => drupal_get_path('module','budgetsys') . '/templates',
+    ),
+    'budgetsys_full_budget_organizations' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_full_budget_organizations',
+      'path' => drupal_get_path('module','budgetsys') . '/templates',      
+    ),
+  );
+}
+
+/**
+ * Creates an array of budget_categories from the variable.
+ * 
+ * @return $budget_allowed_years
+ * An array of allowed years from the budgetsys_allowed_fiscal_years
+ * variable.
+ */
+function budgetsys_load_years() {
+  $budget_allowed_years_string = variable_get('budgetsys_allowed_fiscal_years');
+  $budget_allowed_years = explode(', ', $budget_allowed_years_string);
+  return $budget_allowed_years;
+}
+/**
+ * Generates a list of allowed years. Both the index
+ * and the values are the translated allowed years.
+ * 
+ * @return $list
+ * An array of allowed years, keyed by the allowed years.
+ * 
+ */
+function budgetsys_load_years_list() {
+  $allowed_years = budgetsys_load_years();
+  $list = array();
+
+  foreach($allowed_years as $allowed_year) {
+    $list[t($allowed_year)] = t($allowed_year);
+  }
+  
+  return $list;
+}
+/**
+ * Generates an array of fiscal years.
+ * 
+ * @param $current_year
+ *  The current year, formatted as either a 2 year 9 digit definition or a 1 year 4 digit definition
+ * 
+ * @param $num_years
+ *  The number of years to return
+ * 
+ * @return
+ *  An array consisting of the number of years specified starting from, but not including,
+ * $current_year
+ */
+function budgetsys_generate_prior_years($current_year = NULL, $num_years = NULL, $reversed = NULL) {
+  if(!$current_year) {
+    $current_year = variable_get('budgetsys_current_fiscal_year');
+  }
+  if(!$num_years) {
+    $num_years = variable_get('budgetsys_line_num_prior_years', '3');
+  }
+$multiyear_mode = variable_get('budgetsys_multiyear_fiscal_year');
+  if($multiyear_mode) {
+    if(strlen($current_year) != 9 || strpos($current_year, '-') != 4) { return drupal_set_message(t('The multiyear value is in an incorrect format. Ensure it is 9 digits formated as follows: 20XX-20XX<br>The current value for $current_year is: ' . $current_year), 'error'); }
+    $first_yr = substr($current_year, 0, 4);
+    $second_yr = substr($current_year, 5, 4);
+    $years = array();
+    for($y=1;$y<=$num_years;$y++) {
+      $temp_first_yr = $first_yr - $y;
+      $temp_second_yr = $second_yr - $y;
+      $years[$y-1] = $temp_first_yr . '-' . $temp_second_yr;
+    }
+    if($reversed) {
+      return array_reverse($years);
+    }
+    return $years;
+    
+  }
+return drupal_set_message(t('You currently do not have MultiYear Fiscal Year mode enabled. The single year functionality has not been built yet.'), 'error');;
+}
+/**
+ * A simple function to properly format currency.
+ * 
+ * @param $value
+ *  The value to be formatted as currency.
+ * 
+ * @return
+ *  The formatted currency.
+ */
+function budget_value_format_currency($value) {
+  return variable_get('budgetsys_budget_value_currency_symbol', '$') . number_format($value, 2, '.', ',');
+  
+}
+
+function budgetsys_example() {
+  
+}
+/**
+ * function to create a link render item. Returns the render array.
+ * 
+ * @param $text
+ *  The text of the link
+ * 
+ * @param $path
+ *  The path the link leads to
+ * 
+ * @return
+ *  see above
+ */
+function budgetsys_create_link($text, $path) {
+  $link = array(
+    '#theme' => 'link',
+    '#text' => $text,
+    '#path' => $path,
+    '#options' => array(
+      'attributes' => array(),
+      'html' => FALSE,
+     ),
+  );
+  
+  return $link;
+}
+/**
+ * Takes an account number and optionally a set of years and returns an array.
+ * This array contains the budget values, if they exist for the accounts for
+ * the specified years. If the user can edit the budget values it returns them
+ * as a link to the edit page.
+ * 
+ * @param $account
+ *  The account number that needs to be displayed
+ * 
+ * @param $years
+ *  An optional array of fiscal years
+ * 
+ * @return
+ *  An array of budget values 
+ */
+function budgetsys_load_budget_line_item($account, $years = NULL) {
+  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
+   if($years == NULL) {
+      $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);                // Gets the prior years to be displayed
+    }
+  foreach($years as $year) {    
+    $temp_line = budgetsys_line_load_bv($account, $year);                   // Loads the budget value
+    if($temp_line['bvid'] && user_access('edit budget values')) {           // If the budget value exists and the user can edit budget values
+      $formatted_line = budget_value_format_currency($temp_line['value']);  // format this number as a link to the edit page
+      $path = 'budget/value/'. $temp_line['bvid'] . '/edit';
+      $line_item[] = budgetsys_create_link($formatted_line, $path); 
+    }
+    else {
+       $line_item[] = budget_value_format_currency($temp_line['value']); // If the user cannot edit budget values or this budget value
+     }                                                                             // doesn't exist format it as a regular value
+  }
+  return $line_item;
+}
+
+function budgetsys_load_complete_organization_budget($budget_org) {
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $accounts = budgetsys_org_load_org_budget_lines($budget_org->oid);
+  $budget_org->content['org_title'] = $budget_org->title;
+  $delta = 0;
+  foreach($accounts as $account) {
+    $budget_org->content['title'][$delta] = $account->title;                       // Sets the title
+    $budget_org->content['account_number'][$delta] = $account->account_number;     // Sets the account number
+    $budget_org->content['line_item_type'][$delta] = $account->type; 
+    $budget_org->content['values'][$delta] = budgetsys_load_budget_line_item($account->account_number);
+    $delta++;
+  }
+     $budget_org->content['delta'] = $delta;
+     $budget_org->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
+     $budget_org->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);
+  return $budget_org->content;
+}
+
+function budgetsys_load_complete_budget_line_items($line_item) {
+    module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api');       // Provides functions
+    $line_item->content['title'] = $line_item->title;                       // Sets the title
+    $line_item->content['account_number'] = $line_item->account_number;     // Sets the account number
+    $line_item->content['line_item_type'] = $line_item->type;               // Sets the line item type
+     if(module_exists('budgetsys_org')) {
+        $organization = budgetsys_org_load($line_item->oid);                // load the budget organization
+        $org_path = 'budget/org/' . $organization->oid;                      
+        $line_item->content['organization'] = $organization->title;         // Set the organization title
+       if(user_access('view budget organizations')) {                       // If the user can view budget organization reformat the organization
+           $line_item->content['organization'] = budgetsys_create_link($organization->title, $org_path); // As a link
+       }
+     }       
+  $account = $line_item->account_number;
+  $line_item->content['values'] = budgetsys_load_budget_line_item($account);
+  $line_item->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
+  $line_item->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);          // Provides the prior years for display
+  
+  return $line_item->content; 
+}
