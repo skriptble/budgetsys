@@ -37,7 +37,7 @@ function budgetsys_line_type_form($form, &$form_state, $line_type, $op = 'edit')
     '#type' => 'radios',
     '#default value' => '',
     '#options' => array(
-      'postive' => t('Only positive values.'),
+      'positive' => t('Only positive values.'),
       'negative' => t('Only negative values.'),
       'both' => t('Both positive & negative values.'),
     ),
