@@ -62,6 +62,10 @@ function budgetsys_value_form($form, &$form_state, $value) {
     '#type' => 'value',
     '#value' => $value->uid,
   );
+  $form['type'] = array(
+    '#type' => 'value',
+    '#value' => $value->type,
+  );
   $form['revision'] = array(
     '#access' => user_access('administer budget values'),
     '#type' => 'checkbox',
@@ -94,14 +98,37 @@ function budgetsys_value_form($form, &$form_state, $value) {
       '#submit' => array('budgetsys_value_form_submit_delete'),
     );
   }
-
+ // kpr($form_state);
   $form['#validate'][] = 'budgetsys_value_form_validate';
 
   return $form;
 }
 
 function budgetsys_value_form_validate($form, &$form_state) {
+  // Throw an error if this is a new budget value and one already exists with
+  // the same account number, budget value type, and fiscal year
+  $account = $form_state['values']['account_number'];
+  $type = $form_state['values']['type'];
+  $year = $form_state['values']['year'];
+  $budget_value = $form_state['values']['value'];
+  $value = $form_state['value'];
+  $value_id = entity_id('budgetsys_value' ,$value);
+  $value_array = budgetsys_value_query_values($account, $type, $year);
 
+  if(empty($value_id) && !empty($value_array)) {
+    form_set_error('account_number', 'A value already exists that uses this account number, value type, and year.');
+    form_set_error('year', 'Please change one of these fields');
+  }
+  
+  if(module_exists('budgetsys_line')) {
+    $value_type = budgetsys_line_value_type($account);
+    if($value_type == 'positive' && $budget_value < 0) {
+      form_set_error('value', 'This line type may only contain positive values.');
+    }
+    if($value_type == 'negative' && $budget_value > 0) {
+      form_set_error('value', 'This line type may only contain negative values.');
+    }
+  }
 }
 
 /**
@@ -198,4 +225,15 @@ function budgetsys_value_page_view($value, $view_mode = 'full') {
     return $value->content;
 }
 
+function budgetsys_value_example_page() {
 
+    $value = budgetsys_line_value_type('813');
+  print '<pre>';
+   print_r($value);
+  print '</pre>';
+  if(empty($value)) { return 'It works!';}
+  else {
+       return 'Not Empty';
+  }
+   return 'TESTING';
+}

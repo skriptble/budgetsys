@@ -98,6 +98,13 @@ function budgetsys_value_entity_info_alter(&$entity_info) {
  * Implements hook_menu().
  */
 function budgetsys_value_menu() {
+    $items['budget/value/example'] = array(
+      'title' => 'Testing page',
+      'page callback' => 'budgetsys_value_example_page',
+      'access arguments' => array('view content'),
+      'type' => MENU_NORMAL_ITEM,
+      'file' => 'budgetsys_value.pages.inc',
+    );
     $items['budget/value/add'] = array(
     'title' => 'Add Budget Value',
     'page callback' => 'budgetsys_value_admin_add_page',
@@ -338,6 +345,13 @@ function budgetsys_value_delete($value) {
  */
 function budgetsys_value_delete_multiple($value_ids) {
   entity_delete_multiple('budgetsys_value', $value_ids);
+}
+
+/**
+ * Query the database for a specific budget value
+ */
+function budgetsys_value_query_values($account, $type, $year) {
+  return entity_get_controller('budgetsys_value')->queryValue($account, $type, $year);
 }
 
 /*******************************************************************************

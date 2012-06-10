@@ -106,7 +106,16 @@ class BudgetsysValueController extends EntityAPIController {
   // Reset the order's creator_uid to the original value.
   $budget_value->uid = $temp_uid;
   }
-
+  public function queryValue($account = NULL, $type = NULL, $year = NULL) {
+    // Select the budget value id from the budget value table where the account number = $account and the type = $type and the year = $year
+    $query = db_query("SELECT b.bvid FROM {budgetsys_value} b WHERE account_number = :account AND year = :year AND type = :type", array(
+      ':account' => $account,
+      ':year' => $year,
+      ':type' => $type,
+    ));
+     $result = $query->fetchCol(); 
+      return $result;
+    }
   
 }
 

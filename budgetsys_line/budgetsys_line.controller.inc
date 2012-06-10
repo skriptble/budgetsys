@@ -69,6 +69,14 @@ class BudgetsysLineClassController extends EntityAPIController {
 
     return parent::buildContent($entity, $view_mode, $langcode, $content);
   }
+  public function queryValueType($account) {
+    // Select the budget value id from the budget value table where the account number = $account and the type = $type and the year = $year
+    $query = db_query("SELECT t.value_type FROM {budgetsys_line} l INNER JOIN {budgetsys_line_type} t ON l.type=t.type WHERE account_number = :account", array(
+      ':account' => $account,
+    ));
+     $result = $query->fetchField(); 
+      return $result;
+    }
 }
 
 /**
