@@ -145,7 +145,7 @@ function budgetsys_line_menu() {
   $items[$budget_line_uri . '/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('budgetsys_line_form', $budget_line_uri_argument_position),
+    'page arguments' => array('budgetsys_line_item_form', $budget_line_uri_argument_position),
     'access callback' => 'entity_access',
     'access arguments' => array('edit', 'budgetsys_line', $budget_line_uri_argument_position),
     'file' => 'budgetsys_line.admin.inc',

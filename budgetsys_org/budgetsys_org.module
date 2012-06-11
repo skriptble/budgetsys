@@ -178,6 +178,22 @@ function budgetsys_org_delete($oid) {
 function budgetsys_org_delete_multiple($oids) {
     return entity_get_controller('budgetsys_org')->delete($oids);
 }
+
+/**
+ * Adding the Organization ID for the Line Item Form
+ */
+function budgetsys_org_form_budgetsys_line_item_form_alter(&$form, &$form_state, $form_id) {
+ // Adding the oid field to the line item form.
+  $line_item = $form_state['line_item'];
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+    $form['oid'] = array(
+    '#type' => 'select',
+    '#title' => t('Organization'),
+    '#default_value' => $line_item->oid,
+    '#options' => budgetsys_org_organization_select_list(),  
+    '#required' => TRUE,
+  );
+}
 /**
  * Adds the theme specifications to the Theme Registry
  */
