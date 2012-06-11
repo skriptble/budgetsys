@@ -451,6 +451,21 @@ function budgetsys_load_budget_line_item($account, $years = NULL) {
   return $line_item;
 }
 
+/**
+ * Loads all of the line items for a particular organizations. Returns an array with the
+ * following items:
+ * -title
+ * -account number
+ * -line item type
+ * -values
+ * for each line
+ * 
+ * @param $budget_org
+ *  The organization object containing at least an oid property
+ * 
+ * @return
+ * An array of the content.
+ */
 function budgetsys_load_complete_organization_budget($budget_org) {
   module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
   $accounts = budgetsys_org_load_org_budget_lines($budget_org->oid);
@@ -469,6 +484,16 @@ function budgetsys_load_complete_organization_budget($budget_org) {
   return $budget_org->content;
 }
 
+/**
+ * Builds a content array from the line item given. Returns an item ready to be sent to a page template.
+ * 
+ * @param $line_item
+ *  A line item object
+ * 
+ * @return
+ *  A page template ready array.
+ * 
+ */
 function budgetsys_load_complete_budget_line_items($line_item) {
     module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api');       // Provides functions
     $line_item->content['title'] = $line_item->title;                       // Sets the title
