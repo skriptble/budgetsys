@@ -1,6 +1,7 @@
 <?php
   $content = $element->content;
   $lid = isset($element->lid) ? $lid = $element->lid : "";
+  $delta = 0;
 ?>
     <table>
       <thead>
@@ -11,6 +12,9 @@
     <?php foreach($content['years'] as $year) : ?>
         <th><?php print $year; ?></th>   
     <?php endforeach; ?>
+    <?php foreach($content['types'] as $type) : ?>
+        <th><?php print $type; ?></th>   
+    <?php endforeach; ?>    
       </thead>
       <tr>
         <td><?php echo render($content['title']); ?></td>
@@ -40,9 +44,13 @@
         <th>Line Item Type</th>
         <td><?php echo render($content['line_item_type']); ?></td>
       </tr>
-       <?php for($l=0;$l<count($content['years']);$l++) : ?>
+       <?php for($l=0;$l<count($content['values']);$l++) : ?>
       <tr>
-        <th><?php print $content['years'][$l]; ?></th>
+        <?php if(isset($content['years'][$l])) : ?>
+        <th><?php print $content['years'][$l]; $delta++;?></th>
+        <?php else: ?>        
+        <th><?php print $content['types'][$l-$delta]; ?></th>
+        <?php endif; ?>
         <td><?php print render($content['values'][$l]); ?></td>
       </tr>
       <?php endfor; ?>
