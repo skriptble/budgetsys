@@ -358,21 +358,7 @@ function budgetsys_value_load_budget_value($account, $year, $type) {
   return entity_get_controller('budgetsys_value')->loadBudgetValue($account, $year, $type);
 }
 
-/**
- * Takes an account number and optionally a set of years and returns an array.
- * This array contains the budget values, if they exist for the accounts for
- * the specified years. If the user can edit the budget values it returns them
- * as a link to the edit page.
- * 
- * @param $account
- *  The account number that needs to be displayed
- * 
- * @param $years
- *  An optional array of fiscal years
- * 
- * @return
- *  An array of budget values 
- */
+
 function budgetsys_value_load_budget_line_item($account, $main_type = NULL, $types = NULL ,$years = NULL) {
   return entity_get_controller('budgetsys_value')->loadBudgetLineItem($account, $main_type, $types, $years);
 }
