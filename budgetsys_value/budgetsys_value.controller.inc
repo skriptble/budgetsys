@@ -147,7 +147,65 @@ class BudgetsysValueController extends EntityAPIController {
   return $result;
  }
   
-
+/**
+ * Takes an account number and optionally a set of years and returns an array.
+ * This array contains the budget values, if they exist for the accounts for
+ * the specified years. If the user can edit the budget values it returns them
+ * as a link to the edit page.
+ * 
+ * @param $account
+ *  The account number that needs to be displayed
+ * 
+ * @param $years
+ *  An optional array of fiscal years
+ * 
+ * @return
+ *  An array of budget values 
+ */
+function loadBudgetLineItem($account, $main_type = NULL, $types = NULL ,$years = NULL) {
+  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
+   if($years == NULL) {
+      $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);                // Gets the prior years to be displayed
+    }
+   if($main_type == NULL) {
+     $main_type = variable_get('budgetsys_value_final_type');
+     if($main_type == NULL) {
+       return drupal_set_message("The Final Budget Value Type has not been set. Please set it in the configuration form for the Budget System Value module.");
+     }
+   }
+  if($types == NULL) {
+    $types_raw = budgetsys_value_types();
+    $types = array();
+    foreach($types_raw as $type) {
+      $types[] = $type->type;
+    }
+     $main_type_key = array_search($main_type, $types);
+     unset($types[$main_type_key]);
+  }
+  foreach($years as $year) {    
+    $temp_line = budgetsys_value_load_budget_value($account, $year, $main_type);                   // Loads the budget value
+    if($temp_line['bvid'] && user_access('edit budget values')) {           // If the budget value exists and the user can edit budget values
+      $formatted_line = budget_value_format_currency($temp_line['value']);  // format this number as a link to the edit page
+      $path = 'budget/value/'. $temp_line['bvid'] . '/edit';
+      $line_item[] = budgetsys_create_link($formatted_line, $path); 
+    }
+    else {
+       $line_item[] = budget_value_format_currency($temp_line['value']); // If the user cannot edit budget values or this budget value
+     }                                                                             // doesn't exist format it as a regular value
+  }
+  foreach($types as $type) {    
+    $temp_line = budgetsys_value_load_budget_value($account, $year, $type);                   // Loads the budget value
+    if($temp_line['bvid'] && user_access('edit budget values')) {           // If the budget value exists and the user can edit budget values
+      $formatted_line = budget_value_format_currency($temp_line['value']);  // format this number as a link to the edit page
+      $path = 'budget/value/'. $temp_line['bvid'] . '/edit';
+      $line_item[] = budgetsys_create_link($formatted_line, $path); 
+    }
+    else {
+       $line_item[] = budget_value_format_currency($temp_line['value']); // If the user cannot edit budget values or this budget value
+     }                                                                             // doesn't exist format it as a regular value
+  }
+  return $line_item;
+}
   
 }
 
