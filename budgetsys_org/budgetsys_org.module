@@ -194,6 +194,23 @@ function budgetsys_org_form_budgetsys_line_item_form_alter(&$form, &$form_state,
     '#required' => TRUE,
   );
 }
+
+/**
+ * Adding the Organization ID for the Budget Form
+ */
+function budgetsys_org_form_budgetsys_value_form_alter(&$form, &$form_state, $form_id) {
+ // Adding the oid field to the line item form.
+  $value = $form_state['value'];
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+    $form['oid'] = array(
+    '#type' => 'select',
+    '#title' => t('Organization'),
+    '#default_value' => $value->oid,
+    '#options' => budgetsys_org_organization_select_list(),  
+    '#required' => TRUE,
+    '#weight' => -2,
+  );
+}
 /**
  * Adds the theme specifications to the Theme Registry
  */

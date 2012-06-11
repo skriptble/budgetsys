@@ -92,3 +92,22 @@ function budgetsys_line_budget_view($line_item, $view_mode = 'full') {
     
     return $line_item->content;
 }
+
+
+function budgetsys_line_account_number_autocomplete_callback($string = "") {
+  $matches = array();
+  if ($string) {
+    $result = db_select('budgetsys_line', 'bl')
+      ->fields('bl', array('account_number', 'title'))
+      ->condition('account_number', db_like($string) . '%', 'LIKE')
+      ->range(0, 10)
+      ->execute();
+    foreach ($result as $line) {
+      // In the simplest case (see user_autocomplete), the key and the value are the same. Here we'll display the
+      // uid along with the username in the dropdown.
+      $matches[$line->account_number] = check_plain($line->account_number) . " ($line->title)";
+    }
+  }
+
+  drupal_json_output($matches);
+}
