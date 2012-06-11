@@ -337,26 +337,33 @@ function budgetsys_line_delete_multiple($line_ids) {
   entity_delete_multiple('budgetsys_line', $line_ids);
 }
 
+/**
+ * Query the database for the value_type of a specific account.
+ */
+function budgetsys_line_value_type($account) {
+  return entity_get_controller('budgetsys_line')->queryValueType($account);
+}
+
 /*******************************************************************************
  ****************************** Budget Line Type API's *************************
  ******************************************************************************/
 
 /**
- * Access callback for task Type.
+ * Access callback for Line Type.
  */
 function budgetsys_line_type_access($op, $entity = NULL) {
   return user_access('administer budget line items');
 }
 
 /**
- * Load task Type.
+ * Load Line Type.
  */
 function budgetsys_line_type_load($line_item_type) {
   return budgetsys_line_item_types($line_item_type);
 }
 
 /**
- * List of budget like types.
+ * List of budget line types.
  */
 function budgetsys_line_item_types($line_item_name = NULL) {
   $types = entity_load_multiple_by_name('budgetsys_line_type', isset($line_item_name) ? array($line_item_name) : FALSE);
@@ -378,7 +385,7 @@ function budgetsys_line_type_delete($line_item_type) {
 }
 
 /**
- * Delete multiple case types.
+ * Delete multiple line types.
  */
 function budgetsys_line_type_delete_multiple($line_item_type_ids) {
   entity_delete_multiple('budgetsys_line_type', $line_item_type_ids);
@@ -412,9 +419,4 @@ function budgetsys_line_theme($existing, $type, $theme, $path) {
   );
 }
 
-/**
- * Query the database for the value_type of a specific account.
- */
-function budgetsys_line_value_type($account) {
-  return entity_get_controller('budgetsys_line')->queryValueType($account);
-}
+
