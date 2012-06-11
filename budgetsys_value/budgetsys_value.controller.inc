@@ -93,19 +93,23 @@ class BudgetsysValueController extends EntityAPIController {
     }
   } 
   function saveRevision($budget_value, $uid, $update = FALSE) {
-    // Hold on to the budget value's original creator_uid but swap
-    // in the revision's creator_uid for the momentary write.
-  $temp_uid = $budget_value->uid;
-  $budget_value->uid = $uid;
-  if ($update) {
-    drupal_write_record('budgetsys_value_revision', $budget_value, 'vid');
-  } 
-  else {
-    drupal_write_record('budgetsys_value_revision', $budget_value);
+        // Hold on to the budget value's original creator_uid but swap
+        // in the revision's creator_uid for the momentary write.
+      $temp_uid = $budget_value->uid;
+      $budget_value->uid = $uid;
+      if ($update) {
+        drupal_write_record('budgetsys_value_revision', $budget_value, 'vid');
+      } 
+      else {
+        drupal_write_record('budgetsys_value_revision', $budget_value);
+      }
+      // Reset the order's creator_uid to the original value.
+      $budget_value->uid = $temp_uid;
   }
-  // Reset the order's creator_uid to the original value.
-  $budget_value->uid = $temp_uid;
-  }
+/**
+ * Queries the budgetsys_value table for an budget value ID. Used to determine if a budget value already exists. To load a budget value
+ * for use in a budget line use loadBudgetValue
+ */
   public function queryValue($account = NULL, $type = NULL, $year = NULL) {
     // Select the budget value id from the budget value table where the account number = $account and the type = $type and the year = $year
     $query = db_query("SELECT b.bvid FROM {budgetsys_value} b WHERE account_number = :account AND year = :year AND type = :type", array(
@@ -115,7 +119,35 @@ class BudgetsysValueController extends EntityAPIController {
     ));
      $result = $query->fetchCol(); 
       return $result;
-    }
+  }
+/**
+ * Loads an individual line item from the budgetsys_value table.
+ * 
+ * @param $account
+ *  The account number for the budget value
+ * 
+ * @param $year
+ *  The fiscal year for the budget value
+ * 
+ * @param $type
+ *  The value type for the budget value
+ * 
+ * @return
+ *  An array containing the bvid, title, and value if there is a match
+ */
+  public function loadBudgetValue($account, $year, $type) {
+
+  // Select the budget value id, title, and value from the budget value table where the account number = $account and year = $year
+  $query = db_query("SELECT b.bvid, b.title, b.value FROM {budgetsys_value} b WHERE account_number = :account AND year = :year AND type = :type", array(
+    ':account' => $account,
+    ':year' => $year,
+    ':type' => $type,
+  ));
+  $result = $query->fetchAssoc();
+  return $result;
+ }
+  
+
   
 }
 
