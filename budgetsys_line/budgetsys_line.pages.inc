@@ -68,15 +68,9 @@ function budgetsys_line_budget_view($line_item, $view_mode = 'full') {
   $account = $line_item->account_number;
   $line_item->content['values'] = budgetsys_value_load_budget_line_item($account);
   $line_item->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
-  $line_item->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);          // Provides the prior years for display
-  $types = array();
-    foreach(budgetsys_value_types() as $type) {
-      $types[] = $type->label;
-      $types_type[] = $type->type;
-    }
- $main_type_key = array_search(variable_get('budgetsys_value_final_type'), $types_type);
- unset($types[$main_type_key]);
- $line_item->content['types'] = array_values($types);           // Adds the types array into the content array, but reindexes using array_values first
+     $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);           // Provides the prior years for display
+     $types = budgetsys_value_types_extra();                              // Gets the value types to be displayed except for the main type
+     $line_item->content['headers'] = array_merge($years, $types);       // Combines the arrays into 1
 
   
     // Build fields content.

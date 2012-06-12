@@ -9,8 +9,8 @@
         <th>Organization</th>
     <?php endif; ?>     
         <th>Line Item Type</th>
-    <?php foreach($content['years'] as $year) : ?>
-        <th><?php print $year; ?></th>   
+    <?php foreach($content['headers'] as $header) : ?>
+        <th><?php print $header; ?></th>   
     <?php endforeach; ?>
   </thead>
   <tbody>
