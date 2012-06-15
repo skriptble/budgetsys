@@ -5,10 +5,10 @@
 <?php foreach($categories as $category) : ?>
 <h1><?php print $category; ?></h1>
 <?php foreach($content[$category]['organizations'] as $organization) : ?>
-
+<?php $colspan = 3 + count($organization['headers']);?>
     <table>
       <thead>
-        <th colspan="20"><?php print $organization['org_title']; ?></th>
+        <th colspan="<?php print $colspan; ?>"><?php print $organization['org_title']; ?></th>
       </thead>
       <thead>
         <th>Account Title</th>
