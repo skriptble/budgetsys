@@ -60,14 +60,7 @@ function budgetsys_line_schema() {
         'length' => 32,
         'not null' => TRUE,
         'default' => 'operational',
-      ),
-      'year' => array(
-        'description' => 'The budgeting fiscal year this budget line item belongs to.',
-        'type' => 'varchar',
-        'length' => 9,
-        'not null' => TRUE,
-        'default' => '2011-2012',
-      ),            
+      ),          
     ),
     'unique keys' => array(
       'lid_vid' => array('lid', 'vid'),
@@ -133,13 +126,6 @@ function budgetsys_line_schema() {
         'length' => 32,
         'not null' => TRUE,
         'default' => 'operational',
-      ),
-      'year' => array(
-        'description' => 'The budgeting fiscal year this budget line item belongs to.',
-        'type' => 'varchar',
-        'length' => 9,
-        'not null' => TRUE,
-        'default' => '2011-2012',
       ),
       ),
     'indexes' => array(
@@ -216,6 +202,16 @@ function budgetsys_line_update_7000() {
  */
 function budgetsys_line_update_7001() {
   db_rename_table('budgetsys_line_item_type', 'budgetsys_line_type');
+  
+  return 'Successfully Updated!';
+}
+/**
+ * Dropping the year field.
+ */
+function budgetsys_line_update_7002() {
+  
+  db_drop_field('budgetsys_line', 'year');
+  db_drop_field('budgetsys_line_revision', 'year');
   
   return 'Successfully Updated!';
 }

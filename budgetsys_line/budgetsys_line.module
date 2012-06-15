@@ -264,15 +264,6 @@ function budgetsys_line_entity_property_info_alter(&$info) {
     'required' => TRUE,
     'schema field' => 'account_number',
   );
-    $properties['year'] = array(
-    'label' => t("Fiscal Year"),
-    'type' => 'varchar',
-    'description' => t("The fiscal year of the budget line."),
-    'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer budget line items',
-    'required' => TRUE,
-    'schema field' => 'year',
-  );
   $properties['uid'] = array(
     'label' => t("Author"),
     'type' => 'user',

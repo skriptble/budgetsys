@@ -32,7 +32,6 @@ function budgetsys_line_page_view($line_item, $view_mode = 'full') {
            $line_item->content['organization'] = budgetsys_create_link($organization->title, $org_path); // As a link
        }
      } 
-    $line_item->content['year'] = $line_item->year;
     $line_item->content['line_item_type'] = $line_item->type;
     // Build fields content.
     field_attach_prepare_view('budgetsys_line', array($line_item->lid => $line_item), $view_mode);
