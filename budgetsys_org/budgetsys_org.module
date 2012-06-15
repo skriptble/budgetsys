@@ -101,6 +101,23 @@ function budgetsys_org_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'budgetsys_org.settings.inc',
   );
+
+  $items['budget/full/organization'] = array(
+    'title' => 'By Organization',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'budgetsys_org_view_budget_organization',
+    'access arguments' => array('view content'),
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'budgetsys_org.pages.inc',
+  );
+  $items['budget/full/category'] = array(
+    'title' => 'By Category',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'budgetsys_org_view_budget_category_organization',
+    'access arguments' => array('view content'),
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'budgetsys_org.pages.inc',
+  );
   return $items;
 }
 
@@ -172,6 +189,10 @@ function budgetsys_org_load($oid = NULL, $vid = NULL, $reset = FALSE) {
     $budget_org = budgetsys_org_load_multiple($oids, $conditions, $reset);
     return $budget_org ? reset($budget_org) : FALSE;
 }
+
+function budgetsys_org_load_ids_by_cat($category) {
+  return entity_get_controller('budgetsys_org')->loadOrgIdByCategory($category);
+}
 function budgetsys_org_delete($oid) {
     return budgetsys_org_delete_multiple(array($oid));
 }
@@ -225,6 +246,16 @@ function budgetsys_org_theme($existing, $type, $theme, $path) {
       'variables' => array('element' => null),
       'template' => 'budgetsys_org_budget',
       'path' => drupal_get_path('module', 'budgetsys_org') . '/templates',
+    ),
+    'budgetsys_full_budget_organizations' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_full_budget_organizations',
+      'path' => drupal_get_path('module','budgetsys_org') . '/templates',      
+    ),
+    'budgetsys_full_budget_category_organizations' => array(
+      'variables' => array('element' => null),
+      'template' => 'budgetsys_full_budget_category_organizations',
+      'path' => drupal_get_path('module','budgetsys_org') . '/templates',      
     ),
   );
 }

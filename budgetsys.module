@@ -75,15 +75,6 @@ function budgetsys_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'access arguments' => array('view content'),
   );
-  if(module_exists('budgetsys_org')) {
-  $items['budget/full/organization'] = array(
-    'title' => 'Organization',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'budgetsys_view_budget_organization',
-    'access arguments' => array('view content'),
-    'file' => 'budgetsys.pages.inc',
-  );
-  }
   $items['admin/structure/budgetvalue'] = array(
     'title' => 'Manage Budget Values',
     'description' => 'Manage the Budget Values.',
@@ -297,11 +288,6 @@ function budgetsys_theme($existing, $type, $theme, $path) {
       'variables' => array('element' => null),
       'template' => 'budgetsys_full_budget',
       'path' => drupal_get_path('module','budgetsys') . '/templates',
-    ),
-    'budgetsys_full_budget_organizations' => array(
-      'variables' => array('element' => null),
-      'template' => 'budgetsys_full_budget_organizations',
-      'path' => drupal_get_path('module','budgetsys') . '/templates',      
     ),
   );
 }

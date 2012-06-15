@@ -234,25 +234,4 @@ function budgetsys_view_budget($budget_category = NULL) {
   return $budget->content;
 }
 
-/**
- * Build content for full budget organization view
- */
-function budgetsys_view_budget_organization($budget_category = NULL) {
-  $budget = new stdClass;
-  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
-  $budget_org_ids = budgetsys_org_load_oids();
-  $budget_orgs = budgetsys_org_load_multiple($budget_org_ids);
-  foreach($budget_orgs as $budget_org) {
-    $organization = budgetsys_load_complete_organization_budget($budget_org);
-    $budget->content['organizations'][] = $organization;
-  }
-  $budget->content += array(
-      '#theme' => 'budgetsys_full_budget_organizations',
-      '#element' => $budget,
-      '#view_mode' => 'full',
-      '#language' => NULL,
-  );
-  drupal_set_title(variable_get('budgetsys_budget_name', '') . ' Budget');
-  return $budget->content;
-  return drupal_set_message(t("A listing of organization's budgets"), 'status');
-}
+

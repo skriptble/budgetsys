@@ -200,6 +200,57 @@ function budgetsys_org_budget_view($budget_org, $view_mode = 'full') {
   return $budget_org->content;
 }
 
+/**
+ * Build content for full budget organization view
+ */
+function budgetsys_org_view_budget_organization($budget_category = NULL) {
+  $budget = new stdClass;
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $budget_org_ids = budgetsys_org_load_oids();
+  $budget_orgs = budgetsys_org_load_multiple($budget_org_ids);
+  foreach($budget_orgs as $budget_org) {
+    $organization = budgetsys_load_complete_organization_budget($budget_org);
+    $budget->content['organizations'][] = $organization;
+  }
+  $budget->content += array(
+      '#theme' => 'budgetsys_full_budget_organizations',
+      '#element' => $budget,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+  );
+  drupal_set_title(variable_get('budgetsys_budget_name', '') . ' Budget');
+  return $budget->content;
+}
+
+/**
+ * Build content for budget view via Budget Category then Organization
+ */
+function budgetsys_org_view_budget_category_organization() {
+  $budget = new stdClass;
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $all_categories = budgetsys_org_load_budget_categories();
+  foreach($all_categories as $budget_category) {
+  $budget_org_ids = budgetsys_org_load_ids_by_cat($budget_category);
+  $budget_orgs = budgetsys_org_load_multiple($budget_org_ids);
+  if(!empty($budget_org_ids)) {
+    $budget->content['categories'][] = $budget_category;
+  }
+  foreach($budget_orgs as $budget_org) {
+    $organization = budgetsys_load_complete_organization_budget($budget_org);
+    $budget->content[$budget_category]['organizations'][] = $organization;
+  }
+  }
+ 
+  $budget->content += array(
+      '#theme' => 'budgetsys_full_budget_category_organizations',
+      '#element' => $budget,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+  );
+  drupal_set_title(variable_get('budgetsys_budget_name', '') . ' Budget');
+  return $budget->content;
+}
+
 function budgetsys_org_example() {
   module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
   module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
