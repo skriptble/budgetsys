@@ -9,7 +9,7 @@
         <th>Account Title</th>
         <th>Account Number</th>
         <th>Line Item Type</th>
-    <?php foreach($content['years'] as $year) : ?>
+    <?php foreach($content['headers'] as $year) : ?>
         <th><?php print $year; ?></th>   
     <?php endforeach; ?>
       </thead>
