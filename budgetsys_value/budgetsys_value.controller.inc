@@ -48,16 +48,16 @@ class BudgetsysValueController extends EntityAPIController {
         $budget_value->old_vid = $budget_value->vid;
         unset($budget_value->vid);
       }
-      // If this is a new artwork...
+      // If this is a new budget value...
       if ($budget_value->is_new) {
-        // Save the new artwork.
+        // Save the new budget value.
         drupal_write_record('budgetsys_value', $budget_value);
        // Save the initial revision.
         $this->saveRevision($budget_value, $user->uid);
         $op = 'insert';
       }
         else {
-          // Save the updated artwork.
+          // Save the updated budget value.
           drupal_write_record('budgetsys_value', $budget_value, 'bvid');
           if (!empty($budget_value->revision)) { 
             $this->saveRevision($budget_value, $user->uid);
@@ -68,7 +68,7 @@ class BudgetsysValueController extends EntityAPIController {
           }
           $op = 'update';
         }
-        // If the revision ID is new or updated, save it to the artwork.
+        // If the revision ID is new or updated, save it to the budget value.
         if ($update_budget_value) {
           db_update('budgetsys_value')
           ->fields(array('vid' => $budget_value->vid))
