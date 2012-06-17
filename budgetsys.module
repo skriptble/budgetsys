@@ -4,51 +4,6 @@
  * @file 
  * The main module file for the Budget System.
  */
-/**
- * Implements hook_entity_info().
- */
-function budgetsys_entity_info() {
-  $return['budget_value'] = array(
-    'label' => t('Budget Value [old]'),
-    'plural label' => t('Budget Values'),
-    'description' => t('An entity type for budget values used in line items.'),
-    'controller class' => 'BudgetsysBudgetValueController',
-    'base table' => 'budgetsys_budget_value',
-    'revision table' => 'budgetsys_budget_value_revision',
-    'uri calback' => 'budgetsys_uri',
-    'fieldable' => TRUE,
-    'entity keys' => array(
-      'id' => 'bvid',
-      'revision' => 'vid',
-      'label' => 'title',
-      'bundle' => 'type',
-    ),
-    'bundle keys' => array(
-      'bundle' => 'type',
-    ),
-    'bundles' => array(),
-    'static cache' => TRUE,
-    'view modes' => array(
-      'full' => array(
-        'label' => t('Full content'),
-        'custom settings' => TRUE,
-      ),
-    ),
-  );
-    foreach (budgetsys_budget_value_types() as $type => $info) {
-    $return['budget_value']['bundles'][$type] = array(
-      'label' => $info->name,
-      'admin' => array(
-        'path' => 'admin/structure/budgetvalue/manage/%budgetsys_budget_value_type',
-        'real path' => 'admin/structure/budgetvalue/manage/' . $type,
-        'bundle argument' => 4,
-        'access arguments' => array('administer budget values'),
-      ),
-    );
-  }
-    
-  return $return;
-}
 
 /**
  * Implements hook_menu().
@@ -75,80 +30,6 @@ function budgetsys_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'access arguments' => array('view content'),
   );
-  $items['admin/structure/budgetvalue'] = array(
-    'title' => 'Manage Budget Values',
-    'description' => 'Manage the Budget Values.',
-    'page callback' => 'budgetsys_budget_value_overview_types',
-    'access arguments' => array('administer budget values'),
-    'file' => 'budgetsys.admin.inc',
-  );
-    $items['admin/structure/budgetvalue/manage/%budgetsys_budget_value_type'] = array(
-    'title' => 'View budget value type',
-    'title callback' => 'budgetsys_budget_value_type_page_title',
-    'title arguments' => array(4),
-    'page callback' => 'budgetsys_budget_value_information',
-    'page arguments' => array(4),
-    'access arguments' => array('administer budget values'),
-    'file' => 'budgetsys.admin.inc',
-  );
-    $items['admin/structure/budgetvalue/manage/%budgetsys_budget_value_type/view'] = array(
-    'title' => 'View',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-  $items['budget/value-old/add'] = array(
-    'title' => 'Add new budget value',
-    'page callback' => 'budgetsys_budget_value_add_page',
-    'access arguments' => array('create budget values'),
-    'weight' => 1,
-    'menu_name' => 'management',
-    'file' => 'budgetsys.pages.inc',
-  );
-    foreach (budgetsys_budget_value_types() as $type) {
-    $type_url_str = str_replace('_', '-', $type->type);
-    $items['budget/value-old/add/' . $type_url_str] = array(
-      'title' => $type->name,
-      'title callback' => 'check_plain',
-      'page callback' => 'budgetsys_budget_value_add',
-      'page arguments' => array(3),
-      'access arguments' => array('create budget values'),
-      'description' => $type->description,
-      'file' => 'budgetsys.pages.inc',
-    );
-  }
-  $items['budget/value-old/%budget_value'] = array(
-    'title callback' => 'budget_value_page_title',
-    'title arguments' => array(2),
-    'page callback' => 'budget_value_page_view',
-    'page arguments' => array(2),
-    'access arguments' => array('view budget values'),
-    'type' => MENU_CALLBACK,
-    'file' => 'budgetsys.pages.inc',
-  );
-  $items['budget/value-old/%budget_value/view'] = array(
-    'title' => 'View',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-  );
-    $items['budget/value-old/%budget_value/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'budget_value_page_edit',
-    'page arguments' => array(2),
-    'access arguments' => array('update budget values'),
-    'weight' => 0,
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-    'file' => 'budgetsys.pages.inc',
-  );
-    $items['budget/value-old/%budget_value/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('budget_value_delete_confirm', 2),
-    'access arguments' => array('delete budget values'),
-    'weight' => 1,
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_INLINE,
-    'file' => 'budgetsys.pages.inc',
-  );
   $items['admin/config/system/budget_system'] = array(
     'title' => t('Budget System Configuration'),
     'description' => 'Configuration for the Budget System module',
@@ -163,127 +44,10 @@ function budgetsys_menu() {
 
 
 /**
- * Budget System uri callback
- */
-function budgetsys_uri($budget_value) {
-  return array(
-    'path' => 'budgetvalue/' . $budget_value->bvid
-  );
-}
-
-/**
- * Implements hook_field_extra_fields().
- */
-function budgetsys_field_extra_fields() {
-  $extra = array();
-  foreach (budgetsys_budget_value_types() as $type) {
-    $extra['budget_value'][$type->type] = array(
-      'form' => array(
-        'title' => array(
-          'label' => t('Title'),
-          'description' => t('The name of the budget value'),
-          'weight' => -5,
-        ),
-      ),
-      'display' => array(
-        'title' => array(
-          'label' => t('Title'),
-          'description' => t('The name of the budget value'),
-          'weight' => -5,
-        ),
-      ),  
-    );
-  }
-  return $extra;
-}
-function budgetsys_budget_value_types() {
-  $types = &drupal_static(__FUNCTION__);
-  
-  if (empty($types)) {
-    $types['expenditure'] = (object)array(
-      'type' => 'expenditure',
-      'name' => t('Expenditure'),
-      'description' => t('An budget value that contains spent funding.')
-    );
-   $types['income'] = (object)array(
-     'type' => 'income',
-     'name' => t('Income'),
-     'description' => t('A budget value that conains incoming funding.')
-    ); 
-  }
-  return $types;
-}
-
-/**
-* Implements hook_forms().
-*/
-function budgetsys_forms() {
-  $forms = array();
-  if ($types = budgetsys_budget_value_types()) {
-    foreach (array_keys($types) as $type) {
-      $forms[$type . '_budget_value_form']['callback'] = 'budgetsys_form';
-    }
-  }
-  return $forms;
-}
-
-function budget_value_page_title($budget_value) {
-  return $budget_value->title;
-}
-
-function budgetsys_budget_value_type_page_title($type) {
-  return t('Manage @type', array('@type' => $type->name));
-}
-
-function budgetsys_budget_value_type_load($type) {
-  $types = budgetsys_budget_value_types();
-  $type = str_replace('-', '_', $type);
-  return isset($types[$type]) ? $types[$type] : FALSE;
-}
-/**
- * Returns an initialized artwork object.
- *
- * @param $type
- *   The machine-readable type of the artwork.
- *
- * @return
- *   An artwork object with all default fields initialized.
- */
-function budget_value_new($type = '') {
-  return entity_get_controller('budget_value')->create($type);
-}
-
-function budget_value_save($budget_value) {
-  return entity_get_controller('budget_value')->save($budget_value);
-}
-
-function budget_value_load_multiple($bvids = array(), $conditions = array(), $reset = FALSE) {
-    return entity_load('budget_value', $bvids, $conditions, $reset);
-}
-
-function budget_value_load($bvid = NULL, $vid = NULL, $reset = FALSE) {
-    $bvids = (isset($bvid) ? array($bvid) : array());
-    $conditions = (isset($vid) ? array('vid' => $vid) : array());
-    $budget_value = budget_value_load_multiple($bvids, $conditions, $reset);
-    return $budget_value ? reset($budget_value) : FALSE;
-}
-
-function budget_value_delete($bvid) {
-    return budget_value_delete_multiple(array($bvid));
-}
-function budget_value_delete_multiple($bvids) {
-    return entity_get_controller('budget_value')->delete($bvids);
-}
-/**
  * Adds the theme specifications to the Theme Registry
  */
 function budgetsys_theme($existing, $type, $theme, $path) {
   return array(
-    'budget_value' => array(
-      'variables' => array('element' => null),
-      'template' => 'budget_value',
-      'path' => drupal_get_path('module', 'budgetsys') . "/templates",
-    ),
     'budgetsys_full_budget' => array(
       'variables' => array('element' => null),
       'template' => 'budgetsys_full_budget',
@@ -342,7 +106,7 @@ function budgetsys_generate_prior_years($current_year = NULL, $num_years = NULL,
   if(!$num_years) {
     $num_years = variable_get('budgetsys_line_num_prior_years', '3');
   }
-$multiyear_mode = variable_get('budgetsys_multiyear_fiscal_year');
+  $multiyear_mode = variable_get('budgetsys_multiyear_fiscal_year');
   if($multiyear_mode) {
     if(strlen($current_year) != 9 || strpos($current_year, '-') != 4) { return drupal_set_message(t('The multiyear value is in an incorrect format. Ensure it is 9 digits formated as follows: 20XX-20XX<br>The current value for $current_year is: ' . $current_year), 'error'); }
     $first_yr = substr($current_year, 0, 4);
