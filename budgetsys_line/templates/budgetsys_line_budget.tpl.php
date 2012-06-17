@@ -8,8 +8,8 @@
         <th>Account Number</th>
         <th>Organization</th>
         <th>Line Item Type</th>
-    <?php foreach($content['years'] as $year) : ?>
-        <th><?php print $year; ?></th>   
+    <?php foreach($content['headers'] as $header) : ?>
+        <th><?php print $header; ?></th>   
     <?php endforeach; ?>
       </thead>
       <tr>
@@ -40,9 +40,8 @@
         <th>Line Item Type</th>
         <td><?php echo render($content['line_item_type']); ?></td>
       </tr>
-       <?php for($l=0;$l<count($content['years']);$l++) : ?>
-      <tr>
-        <th><?php print $content['years'][$l]; ?></th>
+       <?php for($l=0;$l<count($content['values']);$l++) : ?>
+        <th><?php print $content['headers'][$l];?></th>
         <td><?php print render($content['values'][$l]); ?></td>
       </tr>
       <?php endfor; ?>

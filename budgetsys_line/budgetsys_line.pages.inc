@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Task view callback.
+ * Line view callback.
  */
 function budgetsys_line_view($line_item) {
   drupal_set_title(entity_label('budgetsys_line', $line_item));
@@ -32,7 +32,6 @@ function budgetsys_line_page_view($line_item, $view_mode = 'full') {
            $line_item->content['organization'] = budgetsys_create_link($organization->title, $org_path); // As a link
        }
      } 
-    $line_item->content['year'] = $line_item->year;
     $line_item->content['line_item_type'] = $line_item->type;
     // Build fields content.
     field_attach_prepare_view('budgetsys_line', array($line_item->lid => $line_item), $view_mode);
@@ -66,10 +65,13 @@ function budgetsys_line_budget_view($line_item, $view_mode = 'full') {
        }
      }       
   $account = $line_item->account_number;
-  $line_item->content['values'] = budgetsys_load_budget_line_item($account);
+  $line_item->content['values'] = budgetsys_value_load_budget_line_item($account);
   $line_item->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
-  $line_item->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);          // Provides the prior years for display
+     $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);           // Provides the prior years for display
+     $types = budgetsys_value_types_extra();                              // Gets the value types to be displayed except for the main type
+     $line_item->content['headers'] = array_merge($years, $types);       // Combines the arrays into 1
 
+  
     // Build fields content.
     field_attach_prepare_view('budgetsys_line', array($line_item->lid => $line_item), $view_mode);
     entity_prepare_view('budgetsys_line', array($line_item->lid => $line_item));
@@ -82,4 +84,23 @@ function budgetsys_line_budget_view($line_item, $view_mode = 'full') {
     );
     
     return $line_item->content;
+}
+
+
+function budgetsys_line_account_number_autocomplete_callback($string = "") {
+  $matches = array();
+  if ($string) {
+    $result = db_select('budgetsys_line', 'bl')
+      ->fields('bl', array('account_number', 'title'))
+      ->condition('account_number', db_like($string) . '%', 'LIKE')
+      ->range(0, 10)
+      ->execute();
+    foreach ($result as $line) {
+      // In the simplest case (see user_autocomplete), the key and the value are the same. Here we'll display the
+      // uid along with the username in the dropdown.
+      $matches[$line->account_number] = check_plain($line->account_number) . " ($line->title)";
+    }
+  }
+
+  drupal_json_output($matches);
 }

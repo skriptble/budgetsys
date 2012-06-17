@@ -33,16 +33,6 @@ function budgetsys_value_form($form, &$form_state, $value) {
     '#required' => TRUE,
     '#size' => 10,
   );
-  if(module_exists('budgetsys_org')) {
-    module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
-  $form['oid'] = array(
-    '#type' => 'select',
-    '#title' => t('Organization'),
-    '#default_value' => $value->oid,
-    '#options' => budgetsys_org_organization_select_list(),  
-    '#required' => TRUE,
-  );
-  }
    $form['year'] = array(
     '#type' => 'select',
     '#description' => 'The fiscal year this account is for.',
@@ -65,6 +55,12 @@ function budgetsys_value_form($form, &$form_state, $value) {
   $form['type'] = array(
     '#type' => 'value',
     '#value' => $value->type,
+  );
+ $form['display_type'] = array(
+    '#markup' => $value->type,
+    '#suffix' => '<br><br>',
+    '#prefix' => '<b>Budget Value Type</b>: ',
+    '#weight' => -10,
   );
   $form['revision'] = array(
     '#access' => user_access('administer budget values'),
