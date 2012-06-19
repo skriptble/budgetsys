@@ -35,19 +35,7 @@ function budgetsys_line_entity_info() {
       'access callback' => 'budgetsys_line_access',
     ),
   );
-/*****************************************************************  
-    foreach (budgetsys_line_item_types() as $type => $info) {
-    $return['budgetsys_line']['bundles'][$type] = array(
-      'label' => $info->name,
-      'admin' => array(
-        'path' => 'admin/structure/budget/line/manage/%budgetsys_line_item_type',
-        'real path' => 'admin/structure/budget/line/manage/' . $type,
-        'bundle argument' => 4,
-        'access arguments' => array('administer budget line items'),
-      ),
-    );
-  }  
- ******************************************************************/
+
 $return['budgetsys_line_type'] = array(
     'label' => t('Line Item Type'),
     'entity class' => 'LineItemType',
