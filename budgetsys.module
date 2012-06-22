@@ -1,10 +1,119 @@
 <?php
-
 /**
  * @file 
  * The main module file for the Budget System.
  */
+/******************************************************************
+**********************Drupal Hooks********************************* 
+*******************************************************************/
+/**
+ * Implements hook_entity_info().
+ */
+function budgetsys_entity_info() {
+  $return = array(
+    'budgetsys_line' => array(
+      'label' => t('Budget System Line Item'),
+      'plural label' => t('Budget System Line Items'),
+      'description' => t('An entity type for line items which group budget values.'),
+      'entity class' => 'BudgetsysLineClass',
+      'controller class' => 'BudgetsysLineClassController',
+      'base table' => 'budgetsys_line',
+      'fieldable' => TRUE,
+      'module' => 'budgetsys_line',
+      'load hook' => 'budgetsys_line_load',
+      'entity keys' => array(
+        'id' => 'lid',
+        'label' => 'title',
+        'bundle' => 'type',
+      ),
+      'bundle keys' => array(
+        'bundle' => 'type',
+      ),
+      'bundles' => array(),
+      'static cache' => TRUE,
+      'label callback' => 'entity_class_label',
+      'uri callback' => 'entity_class_uri',
+      'access callback' => 'budgetsys_line_access',
+    ),
+  );
 
+$return['budgetsys_line_type'] = array(
+    'label' => t('Line Item Type'),
+    'entity class' => 'LineItemType',
+    'controller class' => 'LineItemTypeController',
+    'base table' => 'budgetsys_line_type',
+    'fieldable' => FALSE,
+    'bundle of' => 'budgetsys_line',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'ltid',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'module' => 'budgetsys_line',
+    'access callback' => 'budgetsys_line_type_access',
+  );
+  
+  return $return;
+}
+
+/**
+* Implements hook_entity_info_alter().
+*/
+function budgetsys_entity_info_alter(&$entity_info) {
+  foreach (budgetsys_line_item_types() as $type => $info) {
+    $entity_info['budgetsys_line']['bundles'][$type] = array(
+      'label' => $info->label,
+    );
+  }
+}
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function budgetsys_entity_property_info_alter(&$info) {
+  $properties = &$info['budgetsys_line']['properties'];
+  $properties['created'] = array(
+    'label' => t("Date created"),
+    'type' => 'date',
+    'description' => t("The date the budget line was posted."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget line items',
+    'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+    'label' => t("Date changed"),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t("The date the budget like was most recently updated."),
+  );
+  $properties['oid'] = array(
+    'label' => t("Organization"),
+    'type' => 'user',
+    'description' => t("The organization of the budget line."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget line items',
+    'required' => TRUE,
+    'schema field' => 'oid',
+  );
+  $properties['account_number'] = array(
+    'label' => t("Account Number"),
+    'type' => 'varchar',
+    'description' => t("The account number of the budget line."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget line items',
+    'required' => TRUE,
+    'schema field' => 'account_number',
+  );
+  $properties['uid'] = array(
+    'label' => t("Author"),
+    'type' => 'user',
+    'description' => t("The author of the budget line."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget line items',
+    'required' => TRUE,
+    'schema field' => 'uid',
+  );
+}
 /**
  * Implements hook_menu().
  */
@@ -14,8 +123,7 @@ function budgetsys_menu() {
     'description' => 'An example page for testing.',
     'page callback' => 'budgetsys_example',
     'access arguments' => array('view content'),
-    'type' => MENU_NORMAL_ITEM,
-  
+    'type' => MENU_NORMAL_ITEM,  
   );
   $items['budget/full'] = array(
     'title' => 'Budget',
@@ -41,8 +149,6 @@ function budgetsys_menu() {
   );
   return $items;
 }
-
-
 /**
  * Adds the theme specifications to the Theme Registry
  */
@@ -55,7 +161,62 @@ function budgetsys_theme($existing, $type, $theme, $path) {
     ),
   );
 }
+/**
+* Implements hook_permission().
+*/
+function budgetsys_permission() {
+  $permissions = array(
+    'administer budget line items' => array(
+      'title' => t('Administer budget line items'),
+      'description' => t('Allows users to configure budget line item types and their fields.'),
+      'restrict access' => TRUE,
+    ),
+    'create budget line items' => array(
+      'title' => t('Create budget line items'),
+      'description' => t('Allows users to create budget line items.'),
+      'restrict access' => TRUE,
+    ),
+    'view budget line items' => array(
+      'title' => t('View budget line items'),
+      'description' => t('Allows users to view budget line items.'),
+      'restrict access' => TRUE,
+    ),
+    'edit any budget line items' => array(
+      'title' => t('Edit any budget line items'),
+      'description' => t('Allows users to edit any budget line items.'),
+      'restrict access' => TRUE,
+    ),
+    'edit own budget line items' => array(
+      'title' => t('Edit own budget line items'),
+      'description' => t('Allows users to edit own budget line items.'),
+      'restrict access' => TRUE,
+    ),
+  );
+  return $permissions;
+}
+/**
+ * Creates a new object from the specified class type.
+ * 
+ * @param $class_type
+ * The Budget System API class you wish to call.
+ * 
+ * @return
+ * An object of that class.
+ */
+function budgetsys_load_class($class_type) {
+  $loaded_classes = &drupal_static(__FUNCTION__, array());
+  if (!isset($loaded_classes[$class_type])) {
+    $class_name = 'BudgetSystem';
+    $class_name .= ucfirst($class_type);
+    $class_name .= 'API';
+    $loaded_classes[$class_type] = new $class_name();
+  }
+  return $loaded_classes[$class_type];
+}
 
+/******************************************************************
+**********************Settings API********************************* 
+*******************************************************************/
 /**
  * Creates an array of budget_categories from the variable.
  * 
@@ -64,9 +225,7 @@ function budgetsys_theme($existing, $type, $theme, $path) {
  * variable.
  */
 function budgetsys_load_years() {
-  $budget_allowed_years_string = variable_get('budgetsys_allowed_fiscal_years');
-  $budget_allowed_years = explode(', ', $budget_allowed_years_string);
-  return $budget_allowed_years;
+  return budgetsys_load_class('settings')->loadYears();
 }
 /**
  * Generates a list of allowed years. Both the index
@@ -77,14 +236,7 @@ function budgetsys_load_years() {
  * 
  */
 function budgetsys_load_years_list() {
-  $allowed_years = budgetsys_load_years();
-  $list = array();
-
-  foreach($allowed_years as $allowed_year) {
-    $list[t($allowed_year)] = t($allowed_year);
-  }
-  
-  return $list;
+  return budgetsys_load_class('settings')->loadYears(TRUE);
 }
 /**
  * Generates an array of fiscal years.
@@ -100,31 +252,12 @@ function budgetsys_load_years_list() {
  * $current_year
  */
 function budgetsys_generate_prior_years($current_year = NULL, $num_years = NULL, $reversed = NULL) {
-  if(!$current_year) {
-    $current_year = variable_get('budgetsys_current_fiscal_year');
-  }
-  if(!$num_years) {
-    $num_years = variable_get('budgetsys_line_num_prior_years', '3');
-  }
-  $multiyear_mode = variable_get('budgetsys_multiyear_fiscal_year');
-  if($multiyear_mode) {
-    if(strlen($current_year) != 9 || strpos($current_year, '-') != 4) { return drupal_set_message(t('The multiyear value is in an incorrect format. Ensure it is 9 digits formated as follows: 20XX-20XX<br>The current value for $current_year is: ' . $current_year), 'error'); }
-    $first_yr = substr($current_year, 0, 4);
-    $second_yr = substr($current_year, 5, 4);
-    $years = array();
-    for($y=1;$y<=$num_years;$y++) {
-      $temp_first_yr = $first_yr - $y;
-      $temp_second_yr = $second_yr - $y;
-      $years[$y-1] = $temp_first_yr . '-' . $temp_second_yr;
-    }
-    if($reversed) {
-      return array_reverse($years);
-    }
-    return $years;
-    
-  }
-return drupal_set_message(t('You currently do not have MultiYear Fiscal Year mode enabled. The single year functionality has not been built yet.'), 'error');;
+   return budgetsys_load_class('settings')->generatePriorYears($current_year, $num_years, $reversed);    
 }
+
+/******************************************************************
+**********************Formatting API******************************* 
+*******************************************************************/
 /**
  * A simple function to properly format currency.
  * 
@@ -135,12 +268,7 @@ return drupal_set_message(t('You currently do not have MultiYear Fiscal Year mod
  *  The formatted currency.
  */
 function budget_value_format_currency($value) {
-  return variable_get('budgetsys_budget_value_currency_symbol', '$') . number_format($value, 2, '.', ',');
-  
-}
-
-function budgetsys_example() {
-  
+  return budgetsys_load_class('formatting')->formatCurrency($value);
 }
 /**
  * function to create a link render item. Returns the render array.
@@ -155,18 +283,169 @@ function budgetsys_example() {
  *  see above
  */
 function budgetsys_create_link($text, $path) {
-  $link = array(
-    '#theme' => 'link',
-    '#text' => $text,
-    '#path' => $path,
-    '#options' => array(
-      'attributes' => array(),
-      'html' => FALSE,
-     ),
-  );
-  
-  return $link;
+  return budgetsys_load_class('formatting')->createLink($text, $path);
 }
+/******************************************************************
+**********************Line Item API******************************** 
+*******************************************************************/
+/**
+ * Loads the LIDs of all the budget lines in the database
+ * 
+ * @return
+ *  An array of all the LIDs in the system
+ */
+function budgetsys_line_load_all_lids() {
+  return budgetsys_load_class('line')->loadAllLineIDs();
+}
+/*******************************************************************************
+ ****************************** Budget Line API's ******************************
+ ******************************************************************************/
+/**
+* Access callback for Budget Line.
+*/
+function budgetsys_line_access($op, $budget_line, $account = NULL, $entity_type = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('administer budget line items', $account)
+          || user_access('create budget line items', $account);
+    case 'view':
+      return user_access('administer budget line items', $account)
+          || user_access('view budget line items', $account);
+    case 'edit':
+      return user_access('administer budget line items')
+          || user_access('edit any budget line items')
+          || (user_access('edit own budget line items') && ($budget_line->uid == $account->uid));
+  }
+}
+
+/**
+ * Load a budget line item.
+ */
+function budgetsys_line_load($lid, $reset = FALSE) {
+  $budget_line = budgetsys_line_load_multiple(array($lid), array(), $reset);
+  return reset($budget_line);
+}
+
+/**
+ * Load multiple line items based on certain conditions.
+ */
+function budgetsys_line_load_multiple($lids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('budgetsys_line', $lids, $conditions, $reset);
+}
+
+/**
+ * Save budget line.
+ */
+function budgetsys_line_save($line_item) {
+  entity_save('budgetsys_line', $line_item);
+}
+
+/**
+ * Delete single budget line.
+ */
+function budgetsys_line_delete($line_item) {
+  entity_delete('budgetsys_line', entity_id('budgetsys_line' ,$line_item));
+}
+
+/**
+ * Delete multiple budget lines.
+ */
+function budgetsys_line_delete_multiple($line_ids) {
+  entity_delete_multiple('budgetsys_line', $line_ids);
+}
+
+/**
+ * Query the database for the value_type of a specific account.
+ */
+function budgetsys_line_value_type($account) {
+  return entity_get_controller('budgetsys_line')->queryValueType($account);
+}
+
+/*******************************************************************************
+ ****************************** Budget Line Type API's *************************
+ ******************************************************************************/
+
+/**
+ * Access callback for Line Type.
+ */
+function budgetsys_line_type_access($op, $entity = NULL) {
+  return user_access('administer budget line items');
+}
+
+/**
+ * Load Line Type.
+ */
+function budgetsys_line_type_load($line_item_type) {
+  return budgetsys_line_item_types($line_item_type);
+}
+
+/**
+ * List of budget line types.
+ */
+function budgetsys_line_item_types($line_item_name = NULL) {
+  $types = entity_load_multiple_by_name('budgetsys_line_type', isset($line_item_name) ? array($line_item_name) : FALSE);
+  return isset($line_item_name) ? reset($types) : $types;
+}
+
+/**
+ * Save budget line type entity.
+ */
+function budgetsys_line_type_save($line_item_type) {
+  entity_save('budgetsys_line_type', $line_item_type);
+}
+
+/**
+ * Delete single budget line type.
+ */
+function budgetsys_line_type_delete($line_item_type) {
+  entity_delete('budgetsys_line_type', entity_id('budgetsys_line_type' ,$line_item_type));
+}
+
+/**
+ * Delete multiple line types.
+ */
+function budgetsys_line_type_delete_multiple($line_item_type_ids) {
+  entity_delete_multiple('budgetsys_line_type', $line_item_type_ids);
+}
+
+/**
+  * Implements hook_views_api().
+  */
+function budgetsys_line_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'budgetsys_line'),
+  );
+}
+/******************************************************************
+**********************Budget Value API*****************************
+*******************************************************************/
+
+/******************************************************************
+**********************Organization API*****************************
+*******************************************************************/
+
+
+function budgetsys_example() {
+  $allowed_years = budgetsys_load_class('settings')->loadYears();
+  print_r($allowed_years);
+  print '<br>';
+  $line = budgetsys_load_class('line');   
+  $methods = get_class_methods($line);
+  foreach ($methods as $method_name) {
+    echo "$method_name\n";
+}
+  //var_dump(get_object_vars($line));
+  $years = $line->settingsAPI->loadYears();
+  print_r($years);
+  return '';
+  
+}
+
 /**
  * Takes an account number and optionally a set of years and returns an array.
  * This array contains the budget values, if they exist for the accounts for
@@ -204,10 +483,10 @@ function budgetsys_load_budget_line_item($account, $years = NULL) {
 /**
  * Loads all of the line items for a particular organizations. Returns an array with the
  * following items:
- * -title
- * -account number
- * -line item type
- * -values
+ * --title
+ * --account number
+ * --line item type
+ * --values
  * for each line
  * 
  * @param $budget_org
