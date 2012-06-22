@@ -6,31 +6,6 @@
  */
 
 /**
- * Implements hook_entity_info().
- */
-function budgetsys_org_entity_info() {
-    $return = array(
-    'budgetsys_org' => array(
-      'label' => t('Budget System Organization'),
-      'plural label' => t('Budget System Organizations'),
-      'description' => t('An entity type for organizations which group line items.'),
-      'entity class' => 'BudgetsysOrgClass',
-      'controller class' => 'BudgetsysOrgClassController',
-      'base table' => 'budgetsys_org',
-      'fieldable' => TRUE,
-      'entity keys' => array(
-        'id' => 'oid',
-      ),
-      // Make use the class' label() and uri() implementation by default.
-      'label callback' => 'entity_class_label',
-      'uri callback' => 'entity_class_uri',
-      'module' => 'budgetsys_org',
-    ),
-    );
-  return $return;
-}
-
-/**
  * Implements hook_menu()
  */
 function budgetsys_org_menu() {
@@ -92,15 +67,6 @@ function budgetsys_org_menu() {
     'context' => MENU_CONTEXT_INLINE,
     'file' => 'budgetsys_org.pages.inc',
   );
-    $items['admin/config/system/budget_system_organization'] = array(
-    'title' => t('Budget System Organization Configuration'),
-    'description' => 'Configuration for the Budget System Organization module',
-    'page callback' => 'drupal_get_form',
-    'page arguments' =>array('budgetsys_org_configuration_form'),
-    'access arguments' => array('administer budget system'),
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'budgetsys_org.settings.inc',
-  );
 
   $items['budget/full/organization'] = array(
     'title' => 'By Organization',
@@ -119,85 +85,6 @@ function budgetsys_org_menu() {
     'file' => 'budgetsys_org.pages.inc',
   );
   return $items;
-}
-
-function budgetsys_org_page_title($budget_org) {
-  return $budget_org->title;
-}
-/**
- * Implements hook_entity_property_info_alter().
- */
-function budgetsys_org_property_info_alter(&$info) {
-  $properties = &$info['budgetsys_org']['properties'];
-  $properties['created'] = array(
-    'label' => t("Date created"),
-    'type' => 'date',
-    'description' => t("The date the budget line was posted."),
-    'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer budget organizations',
-    'schema field' => 'created',
-  );
-  $properties['changed'] = array(
-    'label' => t("Date changed"),
-    'type' => 'date',
-    'schema field' => 'changed',
-    'description' => t("The date the budget like was most recently updated."),
-  );
-  $properties['active'] = array(
-    'label' => t("Active"),
-    'type' => 'integer',
-    'description' => t("The status of the organization."),
-    'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer budget organizations',
-    'required' => TRUE,
-    'schema field' => 'active',
-  );
-  $properties['budget_category'] = array(
-    'label' => t("Budget Category"),
-    'type' => 'text',
-    'description' => t("The category this budget is in."),
-    'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer budget organizations',
-    'required' => TRUE,
-    'schema field' => 'budget_category',
-  );  
-}
-/**
- * Returns an initialized budget organizations object.
- *
- * @param $type
- *   The machine-readable type of the organization.
- *
- * @return
- *   An organization object with all default fields initialized.
- */
-function budgetsys_org_new($type = '') {
-  return entity_get_controller('budgetsys_org')->create();
-}
-
-function budgetsys_org_save($budget_org) {
-  return entity_get_controller('budgetsys_org')->save($budget_org);
-}
-
-function budgetsys_org_load_multiple($oids = array(), $conditions = array(), $reset = FALSE) {
-    return entity_load('budgetsys_org', $oids, $conditions, $reset);
-}
-
-function budgetsys_org_load($oid = NULL, $vid = NULL, $reset = FALSE) {
-    $oids = (isset($oid) ? array($oid) : array());
-    $conditions = (isset($vid) ? array('vid' => $vid) : array());
-    $budget_org = budgetsys_org_load_multiple($oids, $conditions, $reset);
-    return $budget_org ? reset($budget_org) : FALSE;
-}
-
-function budgetsys_org_load_ids_by_cat($category) {
-  return entity_get_controller('budgetsys_org')->loadOrgIdByCategory($category);
-}
-function budgetsys_org_delete($oid) {
-    return budgetsys_org_delete_multiple(array($oid));
-}
-function budgetsys_org_delete_multiple($oids) {
-    return entity_get_controller('budgetsys_org')->delete($oids);
 }
 
 /**

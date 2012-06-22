@@ -184,6 +184,123 @@ function budgetsys_schema() {
       'type' => array('type'),
     ),
   );
+  $schema['budgetsys_org'] = array(
+    'description' => 'The base table for organizations.',
+    'fields' => array(
+      'oid' => array(
+        'description' => 'The primary identifier for an organization.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'description' => 'The current {budgetsys_org_revision}.vid version identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => 'The title of this organization.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the organization was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the organization was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'active' => array(
+        'description' => 'Whether the organization is active.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'budget_category' => array(
+        'description' => 'The budgetary category this organization is a member of.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'unique keys' => array(
+      'oid_vid' => array('oid', 'vid'),
+      'oid' => array('oid'),
+    ),
+    'primary key' => array('oid'),
+  );
+  $schema['budgetsys_org_revision'] = array(
+    'description' => 'Stores information about each saved version of a {budgetsys_organization}.',
+    'fields' => array(
+      'oid' => array(
+        'description' => 'The {budgetsys_org} this version belongs to.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'vid' => array(
+        'description' => 'The primary indetifier for this version.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The title of this organization.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the organization was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the organization was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'active' => array(
+        'description' => 'Whether the organization is active.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'budget_category' => array(
+        'description' => 'The budgetary category this organization is a member of.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      ),
+    'indexes' => array(
+      'oid' => array('oid'),
+    ),
+    'primary key' => array('vid'),
+    'foreign keys' => array(
+      'budgetsys_org' => array(
+        'table' => 'budgetsys_org',
+        'columns' => array(
+          'oid' => 'oid',
+        ),
+      ),
+    ),
+  );
   return $schema;
 }
 

@@ -10,5 +10,6 @@ files[] = budgetsys.pages.inc
 files[] = budgetsys.settings.inc
 files[] = budgetsys.api.inc
 files[] = budgetsys.line.api.inc
+files[] = budgetsys.org.api.inc
 
 dependencies[] = entity

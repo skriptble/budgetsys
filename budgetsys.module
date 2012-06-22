@@ -53,7 +53,22 @@ $return['budgetsys_line_type'] = array(
     'module' => 'budgetsys_line',
     'access callback' => 'budgetsys_line_type_access',
   );
-  
+$return['budgetsys_org'] = array(
+      'label' => t('Budget System Organization'),
+      'plural label' => t('Budget System Organizations'),
+      'description' => t('An entity type for organizations which group line items.'),
+      'entity class' => 'BudgetsysOrgClass',
+      'controller class' => 'BudgetsysOrgClassController',
+      'base table' => 'budgetsys_org',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'oid',
+      ),
+      // Make use the class' label() and uri() implementation by default.
+      'label callback' => 'entity_class_label',
+      'uri callback' => 'entity_class_uri',
+      'module' => 'budgetsys_org',
+    );  
   return $return;
 }
 
@@ -113,6 +128,39 @@ function budgetsys_entity_property_info_alter(&$info) {
     'required' => TRUE,
     'schema field' => 'uid',
   );
+  $properties = &$info['budgetsys_org']['properties'];
+  $properties['created'] = array(
+    'label' => t("Date created"),
+    'type' => 'date',
+    'description' => t("The date the budget line was posted."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget organizations',
+    'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+    'label' => t("Date changed"),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t("The date the budget like was most recently updated."),
+  );
+  $properties['active'] = array(
+    'label' => t("Active"),
+    'type' => 'integer',
+    'description' => t("The status of the organization."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget organizations',
+    'required' => TRUE,
+    'schema field' => 'active',
+  );
+  $properties['budget_category'] = array(
+    'label' => t("Budget Category"),
+    'type' => 'text',
+    'description' => t("The category this budget is in."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget organizations',
+    'required' => TRUE,
+    'schema field' => 'budget_category',
+  ); 
 }
 /**
  * Implements hook_menu().
@@ -428,6 +476,126 @@ function budgetsys_line_views_api() {
 /******************************************************************
 **********************Organization API*****************************
 *******************************************************************/
+/**
+ * @return $budget_categories
+ * An array of budget categories from the budgetsys_org_budget_categories
+ * variable.
+ * 
+ * Creates an array of budget_categories from the variable.
+ */
+function budgetsys_org_load_budget_categories() {
+  return budgetsys_load_class('org')->loadBudgetCategories();
+}
+/**
+ * @return $list
+ * An array of budget categories, keyed by the category name
+ * 
+ * Generates a list of budget categories. Both the index
+ * and the values are the translated budget category
+ */
+function budgetsys_org_list_budget_categories() {
+  return budgetsys_load_class('org')->listBudgetCategories();
+}
+/**
+ * Loads a list of organizations into an array.
+ * 
+ * The each item in the array keyed by the oid.
+ * 
+ * @param $budget_category
+ *  An optional category that will limit the results to organizations
+ * only of that category.
+ * 
+ * @return
+ *  An array of the organizations and oids keyed by the oid.
+ */
+function budgetsys_org_load_budget_orgs($budget_category = NULL) {
+  return budgetsys_load_class('org')->loadBudgetOrgs($budget_category);
+}
+/**
+ * Loads a list of organizations as an array with a key of the oid 
+ * and a value of the organization's title organized by the budget
+ * category.
+ * 
+ * @return
+ *  An multidimensional array. The first dimension contains the budget
+ * categories. The second dimension contains the oids of the organization.
+ * The value of each item is the title of the organization
+ */
+function budgetsys_org_load_organizations_by_category() {
+  return budgetsys_load_class('org')->loadOrganizationsByCategory();
+}
+/**
+ * Returns a multi-dimensional array. The first level is a list of budget categories
+ * which. The second level are the actual selectable organizations.
+ * 
+ * @return
+ *  An multi-dimensional array of organizations
+ */
+function budgetsys_org_organization_select_list() {
+ return budgetsys_load_class('org')->organizationSelectList();
+}
+
+function budgetsys_org_load_org_budget_lines($oid) { 
+ return budgetsys_load_class('org')->loadOrgBudgetLines($oid);  
+}
+/**
+ * Loads a list of organization ids.
+ * 
+ * @param $budget_category
+ *  An optional category that will limit the results to organizations
+ * only of that category.
+ * 
+ * @return
+ *  An array of the organization ids (oids).
+ */
+function budgetsys_org_load_oids($budget_category = NULL) {
+ return budgetsys_load_class('org')->loadOids($budget_category); 
+}
+
+function budgetsys_org_page_title($budget_org) {
+  return $budget_org->title;
+}
+/**
+ * Returns an initialized budget organizations object.
+ *
+ * @param $type
+ *   The machine-readable type of the organization.
+ *
+ * @return
+ *   An organization object with all default fields initialized.
+ */
+function budgetsys_org_new($type = '') {
+  return entity_get_controller('budgetsys_org')->create();
+}
+
+function budgetsys_org_save($budget_org) {
+  return entity_get_controller('budgetsys_org')->save($budget_org);
+}
+
+function budgetsys_org_load_multiple($oids = array(), $conditions = array(), $reset = FALSE) {
+    return entity_load('budgetsys_org', $oids, $conditions, $reset);
+}
+
+function budgetsys_org_load($oid = NULL, $vid = NULL, $reset = FALSE) {
+    $oids = (isset($oid) ? array($oid) : array());
+    $conditions = (isset($vid) ? array('vid' => $vid) : array());
+    $budget_org = budgetsys_org_load_multiple($oids, $conditions, $reset);
+    return $budget_org ? reset($budget_org) : FALSE;
+}
+
+function budgetsys_org_load_ids_by_cat($category) {
+  return entity_get_controller('budgetsys_org')->loadOrgIdByCategory($category);
+}
+function budgetsys_org_delete($oid) {
+    return budgetsys_org_delete_multiple(array($oid));
+}
+function budgetsys_org_delete_multiple($oids) {
+    return entity_get_controller('budgetsys_org')->delete($oids);
+}
+
+
+
+
 
 
 function budgetsys_example() {

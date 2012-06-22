@@ -8,11 +8,6 @@
  */
 function budgetsys_view_budget($budget_category = NULL) {
   $budget = new stdClass;
-  if(!module_exists('budgetsys_org')) {
-    drupal_set_message(t('The Budget System Organization module is not enabled!'), 'warning');
-  }
-
- 
   $budget_line_ids = budgetsys_line_load_all_lids();
   $budget_lines = budgetsys_line_load_multiple($budget_line_ids);
   $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);           // Provides the prior years for display
