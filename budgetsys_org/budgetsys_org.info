@@ -7,6 +7,4 @@ files[] = budgetsys_org.module
 files[] = budgetsys_org.pages.inc
 
 
-dependencies[] = entity
 dependencies[] = budgetsys
-dependencies[] = budgetsys_value
