@@ -1,5 +1,5 @@
-name = Budget System Line Item
-description = A line item viewing component for the Budget System.
+name = Budget System Line Item UI
+description = A line item user interface component for the Budget System.
 core = 7.x
 package = Budget System
 version = 7.x-dev

@@ -1,5 +1,5 @@
-name = Budget System Organizations
-description = Provides Organizations for the budget system.
+name = Budget System Organizations UI
+description = Provides Organizations User Interface for the budget system.
 core = 7.x
 package = Budget System
 version = 7.x-dev
