@@ -1,5 +1,5 @@
-name = Budget System
-description = A budget viewing system designed for the Student Association at SUNY Oswego.
+name = Budget System API
+description = A Budgeting System API designed to work with the SUNY Oswego Student Associaiton's Budget Process.
 core = 7.x
 package = Budget System
 version = 7.x-dev
