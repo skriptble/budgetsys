@@ -207,12 +207,12 @@ function budgetsys_value_page_view($value, $view_mode = 'full') {
       $value->content['organization'] = $organization->title;
     }
     // Build fields content.
-    field_attach_prepare_view('budget_value', array($value->bvid => $value), $view_mode);
-    entity_prepare_view('budget_value', array($value->bvid => $value));
-    $value->content += field_attach_view('budget_value', $value, $view_mode);
+    field_attach_prepare_view('budgetsys_value', array($value->bvid => $value), $view_mode);
+    entity_prepare_view('budgetsys_value', array($value->bvid => $value));
+    $value->content += field_attach_view('budgetsys_value', $value, $view_mode);
     
     $value->content += array(
-      '#theme' => 'budget_value',
+      '#theme' => 'budgetsys_value',
       '#element' => $value,
       '#view_mode' => 'full',
       '#language' => NULL,
@@ -222,10 +222,12 @@ function budgetsys_value_page_view($value, $view_mode = 'full') {
 }
 
 function budgetsys_value_example_page() {
-
+  $accounts = budgetsys_org_load_accounts(1);
+  $total = budgetsys_value_calculate_total($accounts, 'approved', '2009-2010');
     $value = budgetsys_line_value_type('813');
   print '<pre>';
-   print_r($value);
+   print_r($accounts);
+   print($total);
   print '</pre>';
   if(empty($value)) { return 'It works!';}
   else {
