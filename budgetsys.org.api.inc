@@ -128,6 +128,15 @@
     $result = $query->execute()->fetchCol();            // Execute and place in an array keyed by the oid
   
     return $result;
+  }
+ public function loadOrgAccounts($oid) {
+      
+    $query = db_select('budgetsys_line', 'l');                     // Select FROM budget_sys
+    $query->fields('l',array('account_number'));                     // oid, o.title
+    $query->condition('oid', $oid, '=');                          // WHERE active = 1
+  
+    $result = $query->execute()->fetchCol();            // Execute and place in an array keyed by the oid
+    return $result;
   }  
 }
  /**

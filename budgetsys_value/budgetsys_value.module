@@ -30,12 +30,6 @@ function budgetsys_value_entity_info() {
     ),
     'bundles' => array(),
     'static cache' => TRUE,
-    'view modes' => array(
-      'full' => array(
-        'label' => t('Full content'),
-        'custom settings' => TRUE,
-      ),
-    ),
    'label callback' => 'entity_class_label',
    'uri callback' => 'entity_class_uri',
    'access callback' => 'budgetsys_value_access',    
@@ -86,7 +80,7 @@ function budgetsys_value_entity_info_alter(&$entity_info) {
     $entity_info['budgetsys_value']['bundles'][$type] = array(
       'label' => $info->label,
       'admin' => array(
-        'path' => 'admin/structure/budget/value-types/manage/%value_type',
+        'path' => 'admin/structure/budget/value-types/manage/%budgetsys_value_type',
         'real path' => 'admin/structure/budget/value-types/manage/' . $type,
         'bundle argument' => 4,
       ),
@@ -363,6 +357,29 @@ function budgetsys_value_load_budget_line_item($account, $main_type = NULL, $typ
   return entity_get_controller('budgetsys_value')->loadBudgetLineItem($account, $main_type, $types, $years);
 }
 
+/**
+ * Calculates the total for a series of accounts.
+ * If calculating a total for an entire organization use the budgetsys_org_calculate_total function instead
+ * 
+ * @param $accounts
+ *  An array of accounts that should be added together
+ * 
+ * @param $type
+ *  The type of budget values that should be used in this calculation
+ * 
+ * @param $year
+ *  The year for the budget values that should be used in this calculation 
+ */
+function budgetsys_value_calculate_total($accounts, $type, $year) {
+  $total = 0;  
+  foreach($accounts as $account) {
+    $budget_value = budgetsys_value_load_budget_value($account, $year, $type);
+    $value = $budget_value['value'];
+    $total += $value;
+  }
+  return $total;
+}
+
 
 /*******************************************************************************
  ****************************** Budget Value Type API's *************************
@@ -451,7 +468,7 @@ function budgetsys_value_views_api() {
  */
 function budgetsys_value_theme($existing, $type, $theme, $path) {
   return array(
-    'budget_value' => array(
+    'budgetsys_value' => array(
       'variables' => array('element' => null),
       'template' => 'budget_value',
       'path' => drupal_get_path('module', 'budgetsys_value') . "/templates",

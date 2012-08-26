@@ -75,10 +75,10 @@ class BudgetSystemSettingsAPI {
       $first_yr = substr($current_year, 0, 4);
       $second_yr = substr($current_year, 5, 4);
       $years = array();
-      for($y=1;$y<=$num_years;$y++) {
+      for($y=0;$y<=$num_years;$y++) {
         $temp_first_yr = $first_yr - $y;
         $temp_second_yr = $second_yr - $y;
-        $years[$y-1] = $temp_first_yr . '-' . $temp_second_yr;
+        $years[$y] = $temp_first_yr . '-' . $temp_second_yr;
       }
       if($reversed) {
         return array_reverse($years);

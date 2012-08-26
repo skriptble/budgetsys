@@ -6,16 +6,16 @@
  */
 function budgetsys_line_entity_info_alter(&$entity_info) {
   foreach (budgetsys_line_item_types() as $type => $info) {
-    $entity_info['budgetsys_line']['bundles'][$type] = array(
+    $entity_info['budgetsys_line_type']['bundles'][$type] = array(
       'admin' => array(
-        'path' => 'admin/structure/budget/line-types/manage/%line_item_type',
+        'path' => 'admin/structure/budget/line-types/manage/%budgetsys_line_type',
         'real path' => 'admin/structure/budget/line-types/manage/' . $type,
-        'bundle argument' => 4,
+        'bundle argument' => 5,
       ),
     );
   }
      // Enable the entity API's admin UI.
-   $entity_info['budgetsys_line']['admin ui'] = array(
+   $entity_info['budgetsys_line_type']['admin ui'] = array(
       'path' => 'admin/structure/budget/line',
       'file' => 'budgetsys_line.admin.inc',
       'controller class' => 'LineItemTypeUIController',

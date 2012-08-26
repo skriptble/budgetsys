@@ -301,6 +301,95 @@ function budgetsys_schema() {
       ),
     ),
   );
+  $schema['budgetsys_total'] = array(
+    'description' => 'Stores the budget totals for each organization, for each year and budget type..',
+    'fields' => array(
+        'tid' => array(
+        'description' => 'The primary identifier for an organization total.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        ),
+      'year' => array(
+        'description' => 'The budgeting fiscal year this budget total belongs to.',
+        'type' => 'varchar',
+        'length' => 9,
+        'not null' => TRUE,
+        'default' => '2011-2012',
+      ),
+      'type' => array(
+        'description' => 'The type of account line item this total is tied to.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'expenditure',
+      ),
+      'value' => array(
+        'description' => 'The value for this budget total.',
+        'type' => 'float',
+        'not null' => TRUE,
+      ),
+      'oid' => array(         
+        'description' => 'The organization associated with this budget total',
+        'type' => 'int',
+        'not null' => TRUE,
+      ), 
+     ),
+      'unique keys' => array(
+      'oid_tid' => array('oid', 'tid'),
+      'tid' => array('tid'),
+    ),
+    'primary key' => array('tid'),
+  );
   return $schema;
+}
+
+/**
+ * Create new database table {budgetsys_total}.
+ */
+function budgetsys_update_7006() {
+    $schema['budgetsys_total'] = array(
+    'description' => 'Stores the budget totals for each organization, for each year and budget type..',
+    'fields' => array(
+        'tid' => array(
+        'description' => 'The primary identifier for an organization total.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        ),
+      'year' => array(
+        'description' => 'The budgeting fiscal year this budget total belongs to.',
+        'type' => 'varchar',
+        'length' => 9,
+        'not null' => TRUE,
+        'default' => '2011-2012',
+      ),
+      'type' => array(
+        'description' => 'The type of account line item this total is tied to.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'expenditure',
+      ),
+      'value' => array(
+        'description' => 'The value for this budget total.',
+        'type' => 'float',
+        'not null' => TRUE,
+      ),
+      'oid' => array(         
+        'description' => 'The organization associated with this budget total',
+        'type' => 'int',
+        'not null' => TRUE,
+      ), 
+     ),
+      'unique keys' => array(
+      'oid_tid' => array('oid', 'tid'),
+      'tid' => array('tid'),
+    ),
+    'primary key' => array('tid'),
+  );
+  db_create_table('budgetsys_total', $schema['budgetsys_total']);
+  
+  return "Table created successfully!";
 }
 

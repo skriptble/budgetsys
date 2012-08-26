@@ -217,8 +217,8 @@ function budgetsys_org_view_budget_organization($budget_category = NULL) {
 function budgetsys_org_view_budget_category_organization() {
   $budget = new stdClass;
   module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
-  $all_categories = budgetsys_org_load_budget_categories();
-  foreach($all_categories as $budget_category) {
+  $all_categories = budgetsys_org_load_budget_categories(); // Loads all of the budget categories
+  foreach($all_categories as $budget_category) {   // loops through the categories
   $budget_org_ids = budgetsys_org_load_ids_by_cat($budget_category);
   $budget_orgs = budgetsys_org_load_multiple($budget_org_ids);
   if(!empty($budget_org_ids)) {
