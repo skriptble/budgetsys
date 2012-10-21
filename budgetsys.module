@@ -62,6 +62,7 @@ $return['budgetsys_org'] = array(
       'controller class' => 'BudgetsysOrgClassController',
       'base table' => 'budgetsys_org',
       'fieldable' => TRUE,
+      'bundles' => array(),
       'entity keys' => array(
         'id' => 'oid',
       ),

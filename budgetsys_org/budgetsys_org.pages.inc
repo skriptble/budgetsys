@@ -2,7 +2,8 @@
 
 function budgetsys_org_add() {
   global $user;
-  $budget_org = entity_get_controller('budgetsys_org')->create();
+
+  $budget_org = entity_create('budgetsys_org', array('type' => 'budgetsys_org'));
   drupal_set_title(t('Create Organization'));
   return drupal_get_form('budgetsys_org_form', $budget_org);
   
@@ -55,6 +56,8 @@ function budgetsys_org_form($form, &$form_state, $budget_org) {
     '#title' => t('Create new revision'),
     '#default_value' => 0,
   );
+  field_attach_form('budgetsys_org', $budget_org, $form, $form_state);
+
   //Add the buttons.
   $form['buttons'] = array();
   $form['buttons']['#weight'] = 100;
@@ -74,7 +77,7 @@ function budgetsys_org_form($form, &$form_state, $budget_org) {
     );
   }
   $form['#validate'][] = 'budgetsys_org_form_validate';
-  field_attach_form('budgetsys_org', $budget_org, $form, $form_state);
+  
 
   return $form;
 }

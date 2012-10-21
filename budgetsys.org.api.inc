@@ -254,4 +254,17 @@ class BudgetsysOrgClassController extends EntityAPIController {
       return $result;    
   }
 }
- 
+
+/**
+ * UI controller for Budget Line Type.
+ */
+class BudgetsysOrgUIController extends EntityDefaultUIController {
+  /**
+   * Overrides hook_menu() defaults.
+   */
+  public function hook_menu() {
+    $items = parent::hook_menu();
+    $items[$this->path]['description'] = 'Manage Organizations.';
+    return $items;
+  }
+}

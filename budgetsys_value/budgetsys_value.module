@@ -80,9 +80,9 @@ function budgetsys_value_entity_info_alter(&$entity_info) {
     $entity_info['budgetsys_value']['bundles'][$type] = array(
       'label' => $info->label,
       'admin' => array(
-        'path' => 'admin/structure/budget/value-types/manage/%budgetsys_value_type',
-        'real path' => 'admin/structure/budget/value-types/manage/' . $type,
-        'bundle argument' => 4,
+        'path' => 'admin/structure/budget/value/manage/%budgetsys_value_type',
+        'real path' => 'admin/structure/budget/value/manage/' . $type,
+        'bundle argument' => 5,
       ),
     );
   }
