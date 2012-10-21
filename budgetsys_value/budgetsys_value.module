@@ -19,6 +19,12 @@ function budgetsys_value_entity_info_alter(&$entity_info) {
       ),
     );
   }
+   // Enable the entity API's admin UI.
+   $entity_info['budgetsys_value_type']['admin ui'] = array(
+      'path' => 'admin/structure/budget/value',
+      'file' => 'budgetsys_value.admin.inc',
+      'controller class' => 'BudgetValueTypeUIController',
+    );
 }
 
 /**

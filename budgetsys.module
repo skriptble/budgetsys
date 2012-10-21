@@ -112,12 +112,6 @@ $return['budgetsys_org'] = array(
       'label' => 'label',
     ),
     'module' => 'budgetsys_value',
-    // Enable the entity API's admin UI.
-    'admin ui' => array(
-      'path' => 'admin/structure/budget/value',
-      'file' => 'budgetsys_value.admin.inc',
-      'controller class' => 'BudgetValueTypeUIController',
-    ),
     'access callback' => 'budgetsys_value_type_access',
   );   
   return $return;
