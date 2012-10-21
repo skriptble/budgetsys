@@ -103,7 +103,7 @@ function budgetsys_value_type_form_delete_confirm_submit($form, &$form_state) {
 }
 
 /**
- * Page to select budget value Type to add new v.
+ * Page to select budget value Type to add new value.
  */
 function budgetsys_value_admin_add_page() {
   $items = array();

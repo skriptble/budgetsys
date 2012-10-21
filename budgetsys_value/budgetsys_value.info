@@ -4,9 +4,8 @@ core = 7.x
 package = Budget System
 version = 7.x-dev
 files[] = budgetsys_value.module
-files[] = budgetsys_value.install
-files[] = budgetsys_value.controller.inc
 files[] = budgetsys_value.pages.inc
+files[] = budgetsys_value.admin.inc
 
 dependencies[] = entity
 dependencies[] = budgetsys

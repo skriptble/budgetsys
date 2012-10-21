@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Controller for the Budget System Values
+ * The Budget System Value API.
  */
 /**
 * Budget value class.
