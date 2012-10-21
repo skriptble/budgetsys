@@ -507,7 +507,7 @@ function budgetsys_line_load_all_lids() {
   return budgetsys_load_class('line')->loadAllLineIDs();
 }
 /*******************************************************************************
- ****************************** Budget Line API's ******************************
+ ****************************** Budget Line API ******************************
  ******************************************************************************/
 /**
 * Access callback for Budget Line.
@@ -575,7 +575,7 @@ function budgetsys_line_value_type($account) {
 }
 
 /*******************************************************************************
- ****************************** Budget Line Type API's *************************
+ ****************************** Budget Line Type API *************************
  ******************************************************************************/
 
 /**
@@ -621,18 +621,181 @@ function budgetsys_line_type_delete_multiple($line_item_type_ids) {
   entity_delete_multiple('budgetsys_line_type', $line_item_type_ids);
 }
 
+/*******************************************************************************
+ ****************************** Budget Value API ******************************
+ ******************************************************************************/
 /**
-  * Implements hook_views_api().
-  */
-function budgetsys_line_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'budgetsys_line'),
-  );
+* Access callback for Budget Value.
+*/
+function budgetsys_value_access($op, $budget_value, $account = NULL, $entity_type = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('administer budget value items', $account)
+          || user_access('create budget value items', $account);
+    case 'view':
+      return user_access('administer budget value items', $account)
+          || user_access('view budget value items', $account);
+    case 'edit':
+      return user_access('administer budget value items')
+          || user_access('edit any budget value items')
+          || (user_access('edit own budget value items') && ($budget_value->uid == $account->uid));
+  }
 }
-/******************************************************************
-**********************Budget Value API*****************************
-*******************************************************************/
+
+/**
+ * Load a budget value.
+ */
+function budgetsys_value_load($lid, $reset = FALSE) {
+  $budget_value = budgetsys_value_load_multiple(array($lid), array(), $reset);
+  return reset($budget_value);
+}
+
+/**
+ * Load multiple values based on certain conditions.
+ */
+function budgetsys_value_load_multiple($lids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('budgetsys_value', $lids, $conditions, $reset);
+}
+
+/**
+ * Save budget value.
+ */
+function budgetsys_value_save($value) {
+  
+  entity_save('budgetsys_value', $value);
+  module_invoke_all('budgetsys_value_update', $value);
+}
+
+/**
+ * Delete single budget value.
+ */
+function budgetsys_value_delete($value) {
+  entity_delete('budgetsys_value', entity_id('budgetsys_value' ,$value));
+}
+
+/**
+ * Delete multiple budget values.
+ */
+function budgetsys_value_delete_multiple($value_ids) {
+  entity_delete_multiple('budgetsys_value', $value_ids);
+}
+
+/**
+ * Query the database for a specific budget value
+ */
+function budgetsys_value_query_values($account, $type, $year) {
+  return entity_get_controller('budgetsys_value')->queryValue($account, $type, $year);
+}
+
+function budgetsys_value_load_budget_value($account, $year, $type) {
+  return entity_get_controller('budgetsys_value')->loadBudgetValue($account, $year, $type);
+}
+
+
+function budgetsys_value_load_budget_line_item($account, $main_type = NULL, $types = NULL ,$years = NULL) {
+  return entity_get_controller('budgetsys_value')->loadBudgetLineItem($account, $main_type, $types, $years);
+}
+
+/**
+ * Calculates the total for a series of accounts.
+ * If calculating a total for an entire organization use the budgetsys_org_calculate_total function instead
+ * 
+ * @param $accounts
+ *  An array of accounts that should be added together
+ * 
+ * @param $type
+ *  The type of budget values that should be used in this calculation
+ * 
+ * @param $year
+ *  The year for the budget values that should be used in this calculation 
+ */
+function budgetsys_value_calculate_total($accounts, $type, $year) {
+  $total = 0;  
+  foreach($accounts as $account) {
+    $budget_value = budgetsys_value_load_budget_value($account, $year, $type);
+    $value = $budget_value['value'];
+    $total += $value;
+  }
+  return $total;
+}
+
+
+/*******************************************************************************
+ ****************************** Budget Value Type API *************************
+ ******************************************************************************/
+
+/**
+ * Access callback for value Type.
+ */
+function budgetsys_value_type_access($op, $entity = NULL) {
+  return user_access('administer budget value items');
+}
+
+/**
+ * Load value Type.
+ */
+function budgetsys_value_type_load($value_type) {
+  return budgetsys_value_types($value_type);
+}
+
+/**
+ * List of budget value types.
+ */
+function budgetsys_value_types($value_name = NULL) {
+  $types = entity_load_multiple_by_name('budgetsys_value_type', isset($value_name) ? array($value_name) : FALSE);
+  return isset($value_name) ? reset($types) : $types;
+}
+
+/**
+ * array of budget value types keyed by the value type.
+ */
+function budgetsys_value_types_array() {
+  $types = budgetsys_value_types();
+  $return = array();
+  foreach($types as $type) {
+    $return[$type->type] = $type->label;
+  }
+  return $return;
+}
+
+/**
+ * Returns an array of the budget value types without the main value type.
+ */
+function budgetsys_value_types_extra() {
+    $types = array();
+    foreach(budgetsys_value_types() as $type) {
+      $types[] = $type->label;
+      $types_type[] = $type->type;
+    }
+ $main_type_key = array_search(variable_get('budgetsys_value_final_type'), $types_type);
+ unset($types[$main_type_key]);
+ return array_values($types);           // Adds the types array into the content array, but reindexes using array_values first
+}
+/**
+ * Save budget value type entity.
+ */
+function budgetsys_value_type_save($value_type) {
+  entity_save('budgetsys_value_type', $value_type);
+}
+
+/**
+ * Delete single budget value type.
+ */
+function budgetsys_value_type_delete($value_type) {
+  entity_delete('budgetsys_value_type', entity_id('budgetsys_value_type' ,$value_type));
+}
+
+/**
+ * Delete multiple value types.
+ */
+function budgetsys_value_type_delete_multiple($value_type_ids) {
+  entity_delete_multiple('budgetsys_value_type', $value_type_ids);
+}
+
 
 /******************************************************************
 **********************Organization API*****************************
