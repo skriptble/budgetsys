@@ -104,15 +104,6 @@ function budgetsys_line_menu() {
     'file' => 'budgetsys_line.admin.inc',
   );
   
-  $items['admin/config/system/budget_system_line'] = array(
-    'title' => t('Budget System Line Item Configuration'),
-    'description' => 'Configuration for the Budget System Line Item module',
-    'page callback' => 'drupal_get_form',
-    'page arguments' =>array('budgetsys_line_configuration_form'),
-    'access arguments' => array('administer budget system'),
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'budgetsys_line.settings.inc',
-  );
   
   $items['budget/line/account_number_autocomplete_callback'] = array(
     'page callback' => 'budgetsys_line_account_number_autocomplete_callback',
