@@ -79,6 +79,8 @@ class BudgetsysValueController extends EntityAPIController {
         $function = 'field_attach_' . $op;
         $function('budget_value', $budget_value);
         module_invoke_all('entity_' . $op, $budget_value, 'budget_value');
+
+        
         // Clear internal properties.
         unset($budget_value->is_new);
         // Ignore slave server temporarily to give time for the saved
@@ -89,6 +91,7 @@ class BudgetsysValueController extends EntityAPIController {
       catch (Exception $e) {
       $transaction->rollback();
       watchdog_exception('budgetsys', $e, NULL, WATCHDOG_ERROR);
+     
       return FALSE;
     }
   } 

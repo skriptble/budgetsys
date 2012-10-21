@@ -324,7 +324,9 @@ function budgetsys_value_load_multiple($lids = array(), $conditions = array(), $
  * Save budget value.
  */
 function budgetsys_value_save($value) {
+  
   entity_save('budgetsys_value', $value);
+  module_invoke_all('budgetsys_value_update', $value);
 }
 
 /**

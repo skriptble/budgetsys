@@ -140,7 +140,7 @@ function budgetsys_value_form_submit($form, &$form_state) {
   $value_uri = entity_uri('budgetsys_value', $value);
 
   $form_state['redirect'] = $value_uri['path'];
-
+  
   drupal_set_message(t('Value %title saved.', array('%title' => entity_label('budgetsys_value', $value))));
 }
 

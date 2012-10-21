@@ -120,6 +120,20 @@ function budgetsys_org_form_budgetsys_value_form_alter(&$form, &$form_state, $fo
   );
 }
 /**
+ * Implements hook_budgetsys_value_update
+ * Used to calculate and save the budget total.
+ */
+function budgetsys_org_budgetsys_value_update($value) {
+  $oid = $value->oid;
+  $organization =budgetsys_org_load($oid);
+  $type = $value->type;
+  $year = $value->year;
+  budgetsys_org_total($organization, $year, $type);
+  watchdog('Budget System Organization','Budget Total for %year of the value type %type has been saved for %organization', array('%year' => $year, '%type' => $type, '%organization' => $organization->title));
+  return ;
+}
+
+/**
  * Adds the theme specifications to the Theme Registry
  */
 function budgetsys_org_theme($existing, $type, $theme, $path) {

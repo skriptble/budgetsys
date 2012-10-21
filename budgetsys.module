@@ -52,6 +52,7 @@ $return['budgetsys_line_type'] = array(
     ),
     'module' => 'budgetsys_line',
     'access callback' => 'budgetsys_line_type_access',
+    
   );
 $return['budgetsys_org'] = array(
       'label' => t('Budget System Organization'),
@@ -646,6 +647,33 @@ function budgetsys_org_save_total ($total) {
     return drupal_set_message('The budget total has been successfully updated!', 'status');
   }
 }
+/**
+ * Calculates and saves an organization's budget total
+ * 
+ * @param $organization
+ * The organization object to use for this calculation. Must contain the oid.
+ * 
+ * @param $year
+ * The year for which you want to calcuate this total.
+ * 
+ * @param $type
+ * The account type you want to calculate this total for.
+ *  
+ * @return 
+ * A status message using drupal_set_message.
+ */
+function budgetsys_org_total($organization, $year, $type) {
+  $calculated_total = budgetsys_org_calculate_total($organization, $year, $type);
+  drupal_set_message('The organization total has been calculated', 'status');
+  $save_total = array();
+  $save_total['year'] = $year;
+  $save_total['type'] = $type;
+  $save_total['value'] = $calculated_total;
+  $save_total['oid'] = $organization->oid;
+  budgetsys_org_save_total($save_total);
+
+  return(drupal_set_message('Total calculation and saving complete'));
+}
 
 /**
  * Loads a total for an organization's budget.
@@ -679,8 +707,14 @@ function budgetsys_example() {
   $total['oid'] = $org->oid;
   print $org->oid;
   budgetsys_org_save_total($total);
-  
-  
+  $totalArray = array();
+  $totalArray['oid'] = '1';
+  $totalArray['year'] = $year;
+  $totalArray['type'] = $type;
+  $loadedTotal = budgetsys_org_load_total($totalArray);
+  drupal_set_message('The loaded total is: '. $loadedTotal['value'], 'status');
+  budgetsys_org_total($org, '2010-2011', 'approved');
+    
   $line = budgetsys_load_class('line');   
   $methods = get_class_methods($line);
   foreach ($methods as $method_name) {
@@ -772,10 +806,22 @@ function budgetsys_load_complete_organization_budget($budget_org) {
      unset($types[$main_type_key]);
      
   foreach($years as $year) {
-    $total[] = budget_value_format_currency(budgetsys_value_calculate_total($total_accounts, $main_type, $year));
+    $budget_load_total = array('oid' => $budget_org->oid, 'year' => $year, 'type' => $main_type);
+    $loaded_total = budgetsys_org_load_total($budget_load_total); 
+    if($loaded_total['value']) {
+      $total[] = budget_value_format_currency($loaded_total['value']); 
+    } else {
+        $total[] = budget_value_format_currency(budgetsys_value_calculate_total($total_accounts, $main_type, $year));
+    }
   }
   foreach($types as $type) {
-    $total[] = budget_value_format_currency(budgetsys_value_calculate_total($total_accounts, $type, $year));
+    $budget_load_total = array('oid' => $budget_org->oid, 'year' => $year, 'type' => $type);
+    $loaded_total = budgetsys_org_load_total($budget_load_total); 
+    if($loaded_total['value']) {
+      $total[] = budget_value_format_currency($loaded_total['value']); 
+    } else {
+      $total[] = budget_value_format_currency(budgetsys_value_calculate_total($total_accounts, $type, $year));
+    }
   }
     $budget_org->content['title'][$delta] = '';                       // Sets the title
     $budget_org->content['account_number'][$delta] = '';     // Sets the account number
