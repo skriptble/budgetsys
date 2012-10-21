@@ -114,39 +114,6 @@ function budgetsys_value_menu() {
   return $items;
 }
 
-/**
-* Implements hook_permission().
-*/
-function budgetsys_value_permission() {
-  $permissions = array(
-    'administer budget values' => array(
-      'title' => t('Administer budget values'),
-      'description' => t('Allows users to configure budget value types and their fields.'),
-      'restrict access' => TRUE,
-    ),
-    'create budget values' => array(
-      'title' => t('Create budget values'),
-      'description' => t('Allows users to create budget values.'),
-      'restrict access' => TRUE,
-    ),
-    'view budget values' => array(
-      'title' => t('View budget values'),
-      'description' => t('Allows users to view budget values.'),
-      'restrict access' => TRUE,
-    ),
-    'edit any budget values' => array(
-      'title' => t('Edit any budget values'),
-      'description' => t('Allows users to edit any budget values.'),
-      'restrict access' => TRUE,
-    ),
-    'edit own budget values' => array(
-      'title' => t('Edit own budget values'),
-      'description' => t('Allows users to edit own budget values.'),
-      'restrict access' => TRUE,
-    ),
-  );
-  return $permissions;
-}
 
 /**
  * Implements hook_entity_property_info_alter().
