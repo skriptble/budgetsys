@@ -67,5 +67,14 @@ function budget_value_configuration_form($form, &$form_state) {
     '#required' => TRUE,
     '#description' => t('Please enter the budget categories, separated by comma followed by a space (, ).'),
   );
+  // Select the final value type that is displayed for past years
+  $form['budgetsys_value_final_type'] = array(
+    '#type' => 'select',
+    '#default_value' => variable_get('budgetsys_value_final_type',''),
+    '#title' => t('Budget Final Value Type'),
+    '#required' => TRUE,
+    '#options' => budgetsys_value_types_array(), 
+    '#description' => t('Please select the budget value type that will be used to display prior year values in the main budget<br>and on line items (if enabled)'),
+  );  
   return system_settings_form($form);
 }
