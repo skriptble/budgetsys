@@ -487,15 +487,7 @@ function budgetsys_line_type_delete_multiple($line_item_type_ids) {
   entity_delete_multiple('budgetsys_line_type', $line_item_type_ids);
 }
 
-/**
-  * Implements hook_views_api().
-  */
-function budgetsys_line_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'budgetsys_line'),
-  );
-}
+
 /******************************************************************
 **********************Budget Value API*****************************
 *******************************************************************/
