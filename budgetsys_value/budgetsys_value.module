@@ -102,15 +102,6 @@ function budgetsys_value_menu() {
     'file' => 'budgetsys_value.admin.inc',
   );
   
-  $items['admin/config/system/budget_system_value'] = array(
-    'title' => t('Budget System Value Configuration'),
-    'description' => 'Configuration for the Budget System Value module',
-    'page callback' => 'drupal_get_form',
-    'page arguments' =>array('budgetsys_value_configuration_form'),
-    'access arguments' => array('administer budget system'),
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'budgetsys_value.settings.inc',
-  );
   return $items;
 }
 
