@@ -6,7 +6,7 @@
  */
 function budgetsys_line_entity_info_alter(&$entity_info) {
   foreach (budgetsys_line_item_types() as $type => $info) {
-    $entity_info['budgetsys_line_type']['bundles'][$type] = array(
+    $entity_info['budgetsys_line']['bundles'][$type] = array(
       'admin' => array(
         'path' => 'admin/structure/budget/line/manage/%budgetsys_line_type',
         'real path' => 'admin/structure/budget/line/manage/' . $type,
