@@ -240,6 +240,31 @@ function budgetsys_permission() {
       'description' => t('Allows users to edit own budget line items.'),
       'restrict access' => TRUE,
     ),
+    'administer budget organizations' => array(
+      'title' => t('Administer budget organizations'),
+      'description' => t('Allows users to configure budget line item types and their fields.'),
+      'restrict access' => TRUE,
+    ),
+    'create budget organizations' => array(
+      'title' => t('Create budget organizations'),
+      'description' => t('Allows users to create budget organizations.'),
+      'restrict access' => TRUE,
+    ),
+    'view budget organizations' => array(
+      'title' => t('View budget organizations'),
+      'description' => t('Allows users to view budget organizations.'),
+      'restrict access' => TRUE,
+    ),
+    'edit any budget organizations' => array(
+      'title' => t('Edit any budget organizations'),
+      'description' => t('Allows users to edit any budget organizations.'),
+      'restrict access' => TRUE,
+    ),
+    'edit own budget organizations' => array(
+      'title' => t('Edit own budget organizations'),
+      'description' => t('Allows users to edit own budget organizations.'),
+      'restrict access' => TRUE,
+    ),
   );
   return $permissions;
 }
