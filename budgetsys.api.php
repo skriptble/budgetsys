@@ -2,9 +2,12 @@
 
 /**
  * @file
- * Hooks provided by the Budget Value module
+ * Hooks provided by the Budget System API module
  */
 
+ /**
+  * Hooks provided by the Budget Value module
+  */
  /**
  * Respond to updates to a budget value.
  *
