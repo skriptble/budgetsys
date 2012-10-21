@@ -5,6 +5,7 @@ package = Budget System
 version = 7.x-dev
 files[] = budgetsys_value.module
 files[] = budgetsys_value.pages.inc
+files[] = budgetsys_value.admin.inc
 
 dependencies[] = entity
 dependencies[] = budgetsys
