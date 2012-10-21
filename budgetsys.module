@@ -212,6 +212,66 @@ function budgetsys_entity_property_info_alter(&$info) {
     'required' => TRUE,
     'schema field' => 'budget_category',
   ); 
+ $properties = &$info['budgetsys_value']['properties'];
+  $properties['created'] = array(
+    'label' => t("Date created"),
+    'type' => 'date',
+    'description' => t("The date the budget value was posted."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+    'label' => t("Date changed"),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t("The date the budget value was most recently updated."),
+  );
+  $properties['oid'] = array(
+    'label' => t("Organization"),
+    'type' => 'user',
+    'description' => t("The organization of the budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'oid',
+  );
+  $properties['account_number'] = array(
+    'label' => t("Account Number"),
+    'type' => 'varchar',
+    'description' => t("The account number of the budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'account_number',
+  );
+    $properties['year'] = array(
+    'label' => t("Fiscal Year"),
+    'type' => 'varchar',
+    'description' => t("The fiscal year of the budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'year',
+  );
+  $properties['uid'] = array(
+    'label' => t("Author"),
+    'type' => 'user',
+    'description' => t("The author of the budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'uid',
+  );
+  $properties['value'] = array(
+    'label' => t("Value"),
+    'type' => 'float',
+    'description' => t("The value of this budget value."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget values',
+    'required' => TRUE,
+    'schema field' => 'value',
+  );  
 }
 /**
  * Implements hook_menu().
