@@ -48,7 +48,7 @@ function budgetsys_line_type_form($form, &$form_state, $line_type, $op = 'edit')
   $form['description'] = array(
     '#type' => 'textarea',
     '#default_value' => isset($line_type->description) ? $line_type->description : '',
-    '#description' => t('Description about the task type.'),
+    '#description' => t('Description about the line item type.'),
   );
 
   $form['actions'] = array('#type' => 'actions');
