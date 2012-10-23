@@ -110,4 +110,12 @@ class BudgetsysOrgClassController extends EntityAPIController {
   $budget_org->uid = $temp_uid;
   }
   
+  public function loadOrgIdByCategory($category) {
+    // Select the organization id from the budget value organization table where category = $category
+    $query = db_query("SELECT o.oid FROM {budgetsys_org} o WHERE budget_category = :category", array(
+      ':category' => $category,
+    ));
+     $result = $query->fetchCol(); 
+      return $result;    
+  }
 }

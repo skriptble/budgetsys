@@ -12,14 +12,12 @@ function budgetsys_budget_value_add_page() {
 function budgetsys_budget_value_add($type) {
   global $user;
   $types = budgetsys_budget_value_types();
-
+  $type = isset($type) ? str_replace('-', '_', $type) : NULL;
   if (empty($types[$type])) {
     return MENU_NOT_FOUND;
   }
   
-
   $budget_value = entity_get_controller('budget_value')->create($type);
-
   drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
   return drupal_get_form($type . '_budget_value_form', $budget_value);
 }
@@ -219,7 +217,9 @@ function budgetsys_view_budget($budget_category = NULL) {
   module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
   $budget_line_ids = budgetsys_line_load_all_lids();
   $budget_lines = budgetsys_line_load_multiple($budget_line_ids);
-  $budget->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);
+  $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);           // Provides the prior years for display
+  $types = budgetsys_value_types_extra();                              // Gets the value types to be displayed except for the main type
+  $budget->content['headers'] = array_merge($years, $types);       // Combines the arrays into 1
   foreach($budget_lines as $budget_line) {
     $line_item = budgetsys_load_complete_budget_line_items($budget_line);
     $budget->content['budget_lines'][] = $line_item;
@@ -234,25 +234,4 @@ function budgetsys_view_budget($budget_category = NULL) {
   return $budget->content;
 }
 
-/**
- * Build content for full budget organization view
- */
-function budgetsys_view_budget_organization($budget_category = NULL) {
-  $budget = new stdClass;
-  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
-  $budget_org_ids = budgetsys_org_load_oids();
-  $budget_orgs = budgetsys_org_load_multiple($budget_org_ids);
-  foreach($budget_orgs as $budget_org) {
-    $organization = budgetsys_load_complete_organization_budget($budget_org);
-    $budget->content['organizations'][] = $organization;
-  }
-  $budget->content += array(
-      '#theme' => 'budgetsys_full_budget_organizations',
-      '#element' => $budget,
-      '#view_mode' => 'full',
-      '#language' => NULL,
-  );
-  drupal_set_title(variable_get('budgetsys_budget_name', '') . ' Budget');
-  return $budget->content;
-  return drupal_set_message(t("A listing of organization's budgets"), 'status');
-}
+

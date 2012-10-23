@@ -9,8 +9,8 @@
         <th>Account Title</th>
         <th>Account Number</th>
         <th>Line Item Type</th>
-    <?php foreach($organization['years'] as $year) : ?>
-        <th><?php print $year; ?></th>   
+    <?php foreach($organization['headers'] as $header) : ?>
+        <th><?php print $header; ?></th>   
     <?php endforeach; ?>
       </thead>
     <?php for($d=0;$d<$organization['delta'];$d++) : ?>

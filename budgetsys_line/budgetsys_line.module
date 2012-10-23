@@ -145,7 +145,7 @@ function budgetsys_line_menu() {
   $items[$budget_line_uri . '/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('budgetsys_line_form', $budget_line_uri_argument_position),
+    'page arguments' => array('budgetsys_line_item_form', $budget_line_uri_argument_position),
     'access callback' => 'entity_access',
     'access arguments' => array('edit', 'budgetsys_line', $budget_line_uri_argument_position),
     'file' => 'budgetsys_line.admin.inc',
@@ -182,6 +182,13 @@ function budgetsys_line_menu() {
     'access arguments' => array('administer budget system'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'budgetsys_line.settings.inc',
+  );
+  
+  $items['budget/line/account_number_autocomplete_callback'] = array(
+    'page callback' => 'budgetsys_line_account_number_autocomplete_callback',
+    'file' => 'budgetsys_line.pages.inc',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('view line items'),
   );
   return $items;
 }
@@ -257,15 +264,6 @@ function budgetsys_line_entity_property_info_alter(&$info) {
     'required' => TRUE,
     'schema field' => 'account_number',
   );
-    $properties['year'] = array(
-    'label' => t("Fiscal Year"),
-    'type' => 'varchar',
-    'description' => t("The fiscal year of the budget line."),
-    'setter callback' => 'entity_property_verbatim_set',
-    'setter permission' => 'administer budget line items',
-    'required' => TRUE,
-    'schema field' => 'year',
-  );
   $properties['uid'] = array(
     'label' => t("Author"),
     'type' => 'user',
@@ -337,26 +335,33 @@ function budgetsys_line_delete_multiple($line_ids) {
   entity_delete_multiple('budgetsys_line', $line_ids);
 }
 
+/**
+ * Query the database for the value_type of a specific account.
+ */
+function budgetsys_line_value_type($account) {
+  return entity_get_controller('budgetsys_line')->queryValueType($account);
+}
+
 /*******************************************************************************
  ****************************** Budget Line Type API's *************************
  ******************************************************************************/
 
 /**
- * Access callback for task Type.
+ * Access callback for Line Type.
  */
 function budgetsys_line_type_access($op, $entity = NULL) {
   return user_access('administer budget line items');
 }
 
 /**
- * Load task Type.
+ * Load Line Type.
  */
 function budgetsys_line_type_load($line_item_type) {
   return budgetsys_line_item_types($line_item_type);
 }
 
 /**
- * List of budget like types.
+ * List of budget line types.
  */
 function budgetsys_line_item_types($line_item_name = NULL) {
   $types = entity_load_multiple_by_name('budgetsys_line_type', isset($line_item_name) ? array($line_item_name) : FALSE);
@@ -378,7 +383,7 @@ function budgetsys_line_type_delete($line_item_type) {
 }
 
 /**
- * Delete multiple case types.
+ * Delete multiple line types.
  */
 function budgetsys_line_type_delete_multiple($line_item_type_ids) {
   entity_delete_multiple('budgetsys_line_type', $line_item_type_ids);
@@ -413,8 +418,20 @@ function budgetsys_line_theme($existing, $type, $theme, $path) {
 }
 
 /**
- * Query the database for the value_type of a specific account.
+ * Adding Autocomplete for the budget value form
  */
-function budgetsys_line_value_type($account) {
-  return entity_get_controller('budgetsys_line')->queryValueType($account);
+function budgetsys_line_form_budgetsys_value_form_alter(&$form, &$form_state, $form_id) {
+ // Adding the oid field to the line item form.
+  $value = $form_state['value'];
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $form['account_number'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Account Number'),
+    '#default_value' => $value->account_number,
+    '#required' => TRUE,
+
+    '#weight' => -2,
+    '#autocomplete_path' => 'budget/line/account_number_autocomplete_callback',
+  );
+
 }

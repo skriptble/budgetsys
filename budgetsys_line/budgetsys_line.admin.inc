@@ -135,7 +135,7 @@ function budgetsys_line_add($type) {
   $line_item = entity_create('budgetsys_line', array('type' => $type));
   drupal_set_title(t('Create @name', array('@name' => entity_label('budgetsys_line_type', $line_type))));
 
-  $output = drupal_get_form('budgetsys_line_form', $line_item);
+  $output = drupal_get_form('budgetsys_line_item_form', $line_item);
 
   return $output;
 }
@@ -143,7 +143,9 @@ function budgetsys_line_add($type) {
 /**
  * Budget Line Form.
  */
-function budgetsys_line_form($form, &$form_state, $line_item) {
+function budgetsys_line_item_form($form, &$form_state, $line_item) {
+  // Save the line item incase we need it later.
+  $form['#line_item'] = $line_item;
   $form_state['line_item'] = $line_item;
 
   $form['title'] = array(
@@ -160,24 +162,7 @@ function budgetsys_line_form($form, &$form_state, $line_item) {
     '#required' => TRUE,
     '#size' => 10,
   );
-  if(module_exists('budgetsys_org')) {
-    module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
-  $form['oid'] = array(
-    '#type' => 'select',
-    '#title' => t('Organization'),
-    '#default_value' => $line_item->oid,
-    '#options' => budgetsys_org_organization_select_list(),  
-    '#required' => TRUE,
-  );
-  }
-   $form['year'] = array(
-    '#type' => 'select',
-    '#description' => 'The fiscal year this account is for.',
-    '#title' => t('Account Year'),
-    '#default_value' => $line_item->year,
-    '#options' => budgetsys_load_years_list(),
-    '#required' => TRUE,
-  );
+
   $form['uid'] = array(
     '#type' => 'value',
     '#value' => $line_item->uid,

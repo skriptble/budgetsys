@@ -354,6 +354,16 @@ function budgetsys_value_query_values($account, $type, $year) {
   return entity_get_controller('budgetsys_value')->queryValue($account, $type, $year);
 }
 
+function budgetsys_value_load_budget_value($account, $year, $type) {
+  return entity_get_controller('budgetsys_value')->loadBudgetValue($account, $year, $type);
+}
+
+
+function budgetsys_value_load_budget_line_item($account, $main_type = NULL, $types = NULL ,$years = NULL) {
+  return entity_get_controller('budgetsys_value')->loadBudgetLineItem($account, $main_type, $types, $years);
+}
+
+
 /*******************************************************************************
  ****************************** Budget Value Type API's *************************
  ******************************************************************************/
@@ -380,6 +390,31 @@ function budgetsys_value_types($value_name = NULL) {
   return isset($value_name) ? reset($types) : $types;
 }
 
+/**
+ * array of budget value types keyed by the value type.
+ */
+function budgetsys_value_types_array() {
+  $types = budgetsys_value_types();
+  $return = array();
+  foreach($types as $type) {
+    $return[$type->type] = $type->label;
+  }
+  return $return;
+}
+
+/**
+ * Returns an array of the budget value types without the main value type.
+ */
+function budgetsys_value_types_extra() {
+    $types = array();
+    foreach(budgetsys_value_types() as $type) {
+      $types[] = $type->label;
+      $types_type[] = $type->type;
+    }
+ $main_type_key = array_search(variable_get('budgetsys_value_final_type'), $types_type);
+ unset($types[$main_type_key]);
+ return array_values($types);           // Adds the types array into the content array, but reindexes using array_values first
+}
 /**
  * Save budget value type entity.
  */

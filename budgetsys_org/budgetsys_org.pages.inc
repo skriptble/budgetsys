@@ -173,19 +173,8 @@ function budgetsys_org_active_translate($status) {
  */
 function budgetsys_org_budget_view($budget_org, $view_mode = 'full') {
   module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
-  $accounts = budgetsys_org_load_org_budget_lines($budget_org->oid);
-  $budget_org->content['org_title'] = $budget_org->title;
-  $delta = 0;
-  foreach($accounts as $account) {
-    $budget_org->content['title'][$delta] = $account->title;                       // Sets the title
-    $budget_org->content['account_number'][$delta] = $account->account_number;     // Sets the account number
-    $budget_org->content['line_item_type'][$delta] = $account->type; 
-    $budget_org->content['values'][$delta] = budgetsys_load_budget_line_item($account->account_number);
-    $delta++;
-  }
-     $budget_org->content['delta'] = $delta;
-     $budget_org->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
-     $budget_org->content['years'] = budgetsys_generate_prior_years(NULL, NULL, TRUE);
+  $organization = budgetsys_load_complete_organization_budget($budget_org);
+  $budget_org->content[] = $organization;
     // Build fields content.
     field_attach_prepare_view('budgetsys_org', array($budget_org->oid => $budget_org), $view_mode);
     entity_prepare_view('budgetsys_org', array($budget_org->oid => $budget_org));
@@ -198,6 +187,57 @@ function budgetsys_org_budget_view($budget_org, $view_mode = 'full') {
     );
   drupal_set_title($budget_org->title);    
   return $budget_org->content;
+}
+
+/**
+ * Build content for full budget organization view
+ */
+function budgetsys_org_view_budget_organization($budget_category = NULL) {
+  $budget = new stdClass;
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $budget_org_ids = budgetsys_org_load_oids();
+  $budget_orgs = budgetsys_org_load_multiple($budget_org_ids);
+  foreach($budget_orgs as $budget_org) {
+    $organization = budgetsys_load_complete_organization_budget($budget_org);
+    $budget->content['organizations'][] = $organization;
+  }
+  $budget->content += array(
+      '#theme' => 'budgetsys_full_budget_organizations',
+      '#element' => $budget,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+  );
+  drupal_set_title(variable_get('budgetsys_budget_name', '') . ' Budget');
+  return $budget->content;
+}
+
+/**
+ * Build content for budget view via Budget Category then Organization
+ */
+function budgetsys_org_view_budget_category_organization() {
+  $budget = new stdClass;
+  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
+  $all_categories = budgetsys_org_load_budget_categories();
+  foreach($all_categories as $budget_category) {
+  $budget_org_ids = budgetsys_org_load_ids_by_cat($budget_category);
+  $budget_orgs = budgetsys_org_load_multiple($budget_org_ids);
+  if(!empty($budget_org_ids)) {
+    $budget->content['categories'][] = $budget_category;
+  }
+  foreach($budget_orgs as $budget_org) {
+    $organization = budgetsys_load_complete_organization_budget($budget_org);
+    $budget->content[$budget_category]['organizations'][] = $organization;
+  }
+  }
+ 
+  $budget->content += array(
+      '#theme' => 'budgetsys_full_budget_category_organizations',
+      '#element' => $budget,
+      '#view_mode' => 'full',
+      '#language' => NULL,
+  );
+  drupal_set_title(variable_get('budgetsys_budget_name', '') . ' Budget');
+  return $budget->content;
 }
 
 function budgetsys_org_example() {
