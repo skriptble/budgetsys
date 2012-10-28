@@ -155,16 +155,20 @@ function budgetsys_org_page_view($budget_org, $view_mode = 'full') {
     // Build fields content.
     field_attach_prepare_view('budgetsys_org', array($budget_org->oid => $budget_org), $view_mode);
     entity_prepare_view('budgetsys_org', array($budget_org->oid => $budget_org));
-    $budget_org->content += field_attach_view('budgetsys_org', $budget_org, $view_mode);
+    $fields = field_attach_view('budgetsys_org', $budget_org, $view_mode);
     
-    $budget_org->content += array(
+    $build = $budget_org->content;
+    
+    unset($budget_org->content);
+    $build += array(
       '#theme' => 'budgetsys_org',
       '#element' => $budget_org,
+      '#fields' => $fields,
       '#view_mode' => 'full',
       '#language' => NULL,
     );
     
-    return $budget_org->content;
+    return $build;
 }
 
 function budgetsys_org_active_translate($status) {

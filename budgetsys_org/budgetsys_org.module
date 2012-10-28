@@ -169,7 +169,7 @@ function budgetsys_org_budgetsys_value_update($value) {
 function budgetsys_org_theme($existing, $type, $theme, $path) {
   return array(
     'budgetsys_org' => array(
-      'variables' => array('element' => null),
+      'render element' => 'elements',
       'template' => 'budgetsys_org',
       'path' => drupal_get_path('module', 'budgetsys_org') . "/templates",
     ),
@@ -190,3 +190,13 @@ function budgetsys_org_theme($existing, $type, $theme, $path) {
     ),
   );
 }
+
+/**
+ * Process the variables for budgetsys_org.tpl.php
+ */
+ function template_preprocess_budgetsys_org(&$variables) {
+   $variables['fields'] = $variables['elements']['#fields'];
+   $variables['active'] = $variables['elements']['active'];
+   $variables['budget_category'] = $variables['elements']['budget_category'];
+ }
+ 
