@@ -41,7 +41,7 @@ function budgetsys_org_menu() {
     'menu_name' => 'management',
     'file' => 'budgetsys_org.pages.inc',
   );
-    $items['budget/org/%budgetsys_org'] = array(
+    $items['budgetsys_org/%budgetsys_org'] = array(
     'title callback' => 'budgetsys_org_page_title',
     'title arguments' => array(2),
     'page callback' => 'budgetsys_org_page_view',
@@ -50,12 +50,12 @@ function budgetsys_org_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'budgetsys_org.pages.inc',
   );
-  $items['budget/org/%budgetsys_org/view'] = array(
+  $items['budgetsys_org/%budgetsys_org/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
-  $items['budget/org/%budgetsys_org/budget'] = array(
+  $items['budgetsys_org/%budgetsys_org/budget'] = array(
     'title' => 'Budget',
     'page callback' => 'budgetsys_org_budget_view',
     'page arguments' => array(2),
@@ -64,7 +64,7 @@ function budgetsys_org_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-    $items['budget/org/%budgetsys_org/edit'] = array(
+    $items['budgetsys_org/%budgetsys_org/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'budgetsys_org_page_edit',
     'page arguments' => array(2),
@@ -74,7 +74,7 @@ function budgetsys_org_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'budgetsys_org.pages.inc',
   );
-    $items['budget/org/%budgetsys_org/delete'] = array(
+    $items['budgetsys_org/%budgetsys_org/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('budgetsys_org_delete_confirm', 2),
