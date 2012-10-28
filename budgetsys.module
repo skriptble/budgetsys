@@ -271,13 +271,6 @@ function budgetsys_entity_property_info_alter(&$info) {
  * Implements hook_menu().
  */
 function budgetsys_menu() {
-  $items['budget/example'] = array(
-    'title' => 'Exampe Page',
-    'description' => 'An example page for testing.',
-    'page callback' => 'budgetsys_example',
-    'access arguments' => array('view content'),
-    'type' => MENU_NORMAL_ITEM,  
-  );
   $items['budget/full'] = array(
     'title' => 'Budget',
     'description' => 'The entire budget displayed by budget category',
@@ -1007,42 +1000,6 @@ function budgetsys_org_load_total($total) {
     ));
      $result = $query->fetchAssoc(); 
      return $result;    
-}
-
-
-function budgetsys_example() {
-  $org = budgetsys_org_load('1');
-  $year = '2009-2010';
-  $type = 'approved';
-  $og_total = budgetsys_org_calculate_total($org, $year, $type);
-  print $og_total;
-  print '<br>';
-  $total = array();
-  $total['year'] = $year;
-  $total['type'] = $type;
-  $total['value'] = $og_total;
-  $total['oid'] = $org->oid;
-  print $org->oid;
-  budgetsys_org_save_total($total);
-  $totalArray = array();
-  $totalArray['oid'] = '1';
-  $totalArray['year'] = $year;
-  $totalArray['type'] = $type;
-  $loadedTotal = budgetsys_org_load_total($totalArray);
-  drupal_set_message('The loaded total is: '. $loadedTotal['value'], 'status');
-  budgetsys_org_total($org, '2010-2011', 'approved');
-    
-  $line = budgetsys_load_class('line');   
-  $methods = get_class_methods($line);
-  foreach ($methods as $method_name) {
-    echo "$method_name\n";
-}
-  //var_dump(get_object_vars($line));
-  $years = $line->settingsAPI->loadYears();
-  print_r($years);
-  print 'HELLO!';
-  return '';
-  
 }
 
 /**
