@@ -3,6 +3,41 @@
  * @file
  * The install file for the budget system.
  */
+
+/**
+ * Implements hook_enable
+ */
+function budgetsys_enable() {
+   budgetsys_add_taxonomy();
+}
+
+/**
+ * Adds vocabularies necessary for the Budget System to work.
+ */
+function budgetsys_add_taxonomy() {
+  $vid = variable_get('budgetsys_fiscal_years_vid', '');
+  if (!taxonomy_vocabulary_load($vid)) {
+    $vocabulary = array(
+      'name' => t('Allowed Fiscal Years'),
+      'machine_name' => 'allowed_fiscal_years',
+      'description' => 'Taxonomy used to determine the fiscal years available',
+      'multiple' => 0,
+      'required' => 1,
+      'hierarchy' => 0,
+      'module' => 'budgetsys',
+      'weight' => '-10',
+    );
+    $vocabulary_obj = (object)$vocabulary;
+    taxonomy_vocabulary_save($vocabulary_obj);
+    variable_set('budgetsys_fiscal_years_vid', $vocabulary_obj);
+    dpm($vocabulary_obj);
+  }
+  
+}
+ 
+ /**
+  * Implements hook_schema
+  */
 function budgetsys_schema() {
   
   $schema['budgetsys_line'] = array(
