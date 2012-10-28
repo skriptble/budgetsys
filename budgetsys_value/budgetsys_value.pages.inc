@@ -125,6 +125,8 @@ function budgetsys_value_form_validate($form, &$form_state) {
       form_set_error('value', 'This line type may only contain negative values.');
     }
   }
+  // Field validation.  
+  field_attach_form_validate('budgetsys_value', $value, $form, $form_state);
 }
 
 /**

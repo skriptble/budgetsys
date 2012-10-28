@@ -43,7 +43,7 @@ class BudgetsysValueController extends EntityAPIController {
       $update_budget_value = TRUE;
       // Give modules the opportunity to prepare field data for
       // saving.
-      field_attach_presave('budget_value', $budget_value);
+      field_attach_presave('budgetsys_value', $budget_value);
       if (!$budget_value->is_new && !empty($budget_value->revision) && $budget_value->vid) {
         $budget_value->old_vid = $budget_value->vid;
         unset($budget_value->vid);
@@ -77,8 +77,8 @@ class BudgetsysValueController extends EntityAPIController {
         }
         // Save fields.
         $function = 'field_attach_' . $op;
-        $function('budget_value', $budget_value);
-        module_invoke_all('entity_' . $op, $budget_value, 'budget_value');
+        $function('budgetsys_value', $budget_value);
+        module_invoke_all('entity_' . $op, $budget_value, 'budgetsys_value');
 
         
         // Clear internal properties.
