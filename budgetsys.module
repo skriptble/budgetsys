@@ -710,6 +710,62 @@ function budgetsys_value_calculate_total($accounts, $type, $year) {
   return $total;
 }
 
+/**
+ * Add Account Year field to a Budget Value Type.
+ *
+ * @param $type
+ *   A budget valye type object.
+ * @param $label
+ *   The label for the body instance.
+ *
+ * @return
+ *   Account Year field instance.
+ */
+function budgetsys_add_account_year_field($type, $label = 'Account Year') {
+   // Add or remove the body field, as needed.
+  $vocab = variable_get('budgetsys_fiscal_years_vid');
+  $field = field_info_field('budgetsys_account_year');
+  $instance = field_info_instance('budgetsys_value', 'budgetsys_account_year', $type->type);
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'budgetsys_account_year',
+      'type' => 'taxonomy_term_reference',
+      'cardinality' => '1',
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => $vocab->machine_name,
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'entity_types' => array('budgetsys_value'),
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => 'budgetsys_account_year',
+      'entity_type' => 'budgetsys_value',
+      'bundle' => $type->type,
+      'label' => $label,
+      'widget' => array('type' => 'taxonomy_term_reference'),
+      'settings' => array('display_summary' => TRUE),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'plain_text',
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => 'plain_text',
+        ),
+      ),
+    );
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
+}
 
 /*******************************************************************************
  ****************************** Budget Value Type API *************************
