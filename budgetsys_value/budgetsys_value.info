@@ -1,5 +1,5 @@
-name = Budget System Value
-description = Provides the Budget Value component for the budget system.
+name = Budget System Value UI
+description = Provides the Budget Value User Interface for the budget system.
 core = 7.x
 package = Budget System
 version = 7.x-dev
