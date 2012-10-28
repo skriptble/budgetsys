@@ -181,7 +181,8 @@ class BudgetsysOrgClassController extends EntityAPIController {
       $update_budget_org = TRUE;
       // Give modules the opportunity to prepare field data for
       // saving.
-      field_attach_presave('budget_org', $budget_org);
+       
+      field_attach_presave('budgetsys_org', $budget_org);
       if (!$budget_org->is_new && !empty($budget_org->revision) && $budget_org->vid) {
         $budget_org->old_vid = $budget_org->vid;
         unset($budget_org->vid);

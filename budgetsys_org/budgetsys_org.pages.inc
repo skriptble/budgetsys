@@ -87,7 +87,7 @@ function budgetsys_org_form($form, &$form_state, $budget_org) {
 function budgetsys_org_form_validate($form, &$form_state) {
   $budget_org = $form_state['budget_org'];
   // Field validation.
-  field_attach_form_validate('budget_org', $budget_org, $form, $form_state);
+  field_attach_form_validate('budgetsys_org', $budget_org, $form, $form_state);
 }
 /**
 * Implements hook_form_submit().
