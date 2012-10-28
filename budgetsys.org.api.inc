@@ -215,8 +215,8 @@ class BudgetsysOrgClassController extends EntityAPIController {
         }
         // Save fields.
         $function = 'field_attach_' . $op;
-        $function('budget_org', $budget_org);
-        module_invoke_all('entity_' . $op, $budget_org, 'budget_org');
+        $function('budgetsys_org', $budget_org);
+        module_invoke_all('entity_' . $op, $budget_org, 'budgetsys_org');
         // Clear internal properties.
         unset($budget_org->is_new);
         // Ignore slave server temporarily to give time for the saved
