@@ -40,6 +40,7 @@ function budgetsys_org_menu() {
     'weight' => 2,
     'menu_name' => 'management',
     'file' => 'budgetsys_org.pages.inc',
+    'type' => MENU_NORMAL_ITEM | MENU_LOCAL_ACTION,
   );
     $items['budget/org/%budgetsys_org'] = array(
     'title callback' => 'budgetsys_org_page_title',
@@ -154,11 +155,12 @@ function budgetsys_org_form_budgetsys_value_form_alter(&$form, &$form_state, $fo
  * Used to calculate and save the budget total.
  */
 function budgetsys_org_budgetsys_value_update($value) {
+  $taxonomy = taxonomy_term_load($value->budgetsys_account_year['und'][0]['tid']);
   $oid = $value->oid;
   $organization =budgetsys_org_load($oid);
   $type = $value->type;
   $year = $value->year;
-  budgetsys_org_total($organization, $year, $type);
+  budgetsys_org_total($organization, $year, $type, $taxonomy);
   watchdog('Budget System Organization','Budget Total for %year of the value type %type has been saved for %organization', array('%year' => $year, '%type' => $type, '%organization' => $organization->title));
   return ;
 }

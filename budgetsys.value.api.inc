@@ -113,7 +113,19 @@ class BudgetsysValueController extends EntityAPIController {
  * Queries the budgetsys_value table for an budget value ID. Used to determine if a budget value already exists. To load a budget value
  * for use in a budget line use loadBudgetValue
  */
-  public function queryValue($account = NULL, $type = NULL, $year = NULL) {
+  public function queryValue($account = NULL, $type = NULL, $year = NULL, $taxonomy = NULL) {
+      if($taxonomy) {
+        dpm('You Entered a taxonomy item.');
+        $query = db_select('budgetsys_value', 'b');
+        $query->join('field_data_budgetsys_account_year', 'ay', 'b.bvid = ay.entity_id');
+        $query
+          ->fields('b', array('bvid'))
+          ->condition('b.account_number', $account)
+          ->condition('b.type', $type)
+          ->condition('ay.budgetsys_account_year_tid', $taxonomy->tid);
+        $result = $query->execute();
+        return $result->fetchCol();
+      }
     // Select the budget value id from the budget value table where the account number = $account and the type = $type and the year = $year
     $query = db_query("SELECT b.bvid FROM {budgetsys_value} b WHERE account_number = :account AND year = :year AND type = :type", array(
       ':account' => $account,
@@ -138,8 +150,19 @@ class BudgetsysValueController extends EntityAPIController {
  * @return
  *  An array containing the bvid, title, and value if there is a match
  */
-  public function loadBudgetValue($account, $year, $type) {
-
+  public function loadBudgetValue($account, $year, $type, $taxonomy = NULL) {
+  if($taxonomy) {
+    #dpm($taxonomy);
+    $query = db_select('budgetsys_value', 'b');
+    $query->join('field_data_budgetsys_account_year', 'ay', 'b.bvid = ay.entity_id');
+    $query
+      ->fields('b', array('bvid', 'title', 'value'))
+      ->condition('b.account_number', $account)
+      ->condition('b.type', $type)
+      ->condition('ay.budgetsys_account_year_tid', $taxonomy->tid);
+    $result = $query->execute();
+    return $result->fetchAssoc();
+  }
   // Select the budget value id, title, and value from the budget value table where the account number = $account and year = $year
   $query = db_query("SELECT b.bvid, b.title, b.value FROM {budgetsys_value} b WHERE account_number = :account AND year = :year AND type = :type", array(
     ':account' => $account,
@@ -209,7 +232,65 @@ function loadBudgetLineItem($account, $main_type = NULL, $types = NULL ,$years =
   }
   return $line_item;
 }
+   
+/**
+ * Takes an account number and optionally a set of years and returns an array.
+ * This array contains the budget values, if they exist for the accounts for
+ * the specified years. If the user can edit the budget values it returns them
+ * as a link to the edit page.
+ * 
+ * @param $account
+ *  The account number that needs to be displayed
+ * 
+ * @param $years
+ *  An optional array of fiscal years
+ * 
+ * @return
+ *  An array of budget values 
+ */
+function loadBudgetLineItemTaxonomy($account, $main_type = NULL, $types = NULL ,$years = NULL) {
+  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
+   if($years == NULL) {
+      $years = budgetsys_get_years();                // Gets the prior years to be displayed
+    }
+   if($main_type == NULL) {
+     $main_type = variable_get('budgetsys_value_final_type');
+     if($main_type == NULL) {
+       return drupal_set_message("The Final Budget Value Type has not been set. Please set it in the configuration form for the Budget System Value module.");
+     }
+   }
+  if($types == NULL) {
+    $types_raw = budgetsys_value_types();
+    $types = array();
+    foreach($types_raw as $type) {
+      $types[] = $type->type;
+    }
+     $main_type_key = array_search($main_type, $types);
+     unset($types[$main_type_key]);
+  }
+  foreach($years['prior years'] as $year) {
+    $line_item[] = budgetsys_value_item_formatter($account, $year, $main_type, $year);                                                                               // doesn't exist format it as a regular value
+  }
+  $current_year = $years['current year'];
+  $line_item[] = budgetsys_value_item_formatter($account, $year, $main_type, $current_year); 
   
+  foreach($types as $type) {
+    $line_item[] = budgetsys_value_item_formatter($account, $year, $type, $current_year);   
+  }
+  return $line_item;
+}
+
+ function budgetLineItemFormatter($account, $year, $type, $taxonomy) {
+    $temp_line = budgetsys_value_load_budget_value($account, $year, $type, $taxonomy);                   // Loads the budget value
+    if($temp_line['bvid'] && user_access('edit budget values')) {           // If the budget value exists and the user can edit budget values
+      $formatted_line = budget_value_format_currency($temp_line['value']);  // format this number as a link to the edit page
+      $path = 'budget/value/'. $temp_line['bvid'] . '/edit';
+      return budgetsys_create_link($formatted_line, $path); 
+    }
+    else {
+       return budget_value_format_currency($temp_line['value']); // If the user cannot edit budget values or this budget value
+     }  
+}  
 }
 
 /**

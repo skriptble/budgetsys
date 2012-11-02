@@ -88,6 +88,18 @@ class BudgetSystemSettingsAPI {
     }
     return drupal_set_message(t('You currently do not have MultiYear Fiscal Year mode enabled. The single year functionality has not been built yet.'), 'error');
   }
+
+  public function getYears() {
+    $num_prior_years = variable_get('budgetsys_line_num_prior_years', '');
+    $current_year = variable_get('budgetsys_current_fiscal_year_taxonomy', '');
+    $years = array();
+    $years['current year'] = taxonomy_term_load($current_year);
+    $years['prior years'] = array();
+    for($i=$num_prior_years;$i>0;$i--) {
+      $years['prior years'][] = variable_get('budgetsys_prior_year_' . $i);
+    }
+    return($years);
+  }
 }
 
 class BudgetSystemFormattingAPI {

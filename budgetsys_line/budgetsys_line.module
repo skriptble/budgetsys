@@ -31,7 +31,7 @@ function budgetsys_line_menu() {
     'page callback' => 'budgetsys_line_admin_add_page',
     'access arguments' => array('administer budget line items'),
     'file' => 'budgetsys_line.admin.inc',
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_NORMAL_ITEM | MENU_LOCAL_ACTION, 
 
   );
   $budget_line_uri = 'budget/line/%budgetsys_line';
@@ -55,7 +55,7 @@ function budgetsys_line_menu() {
   $items[$budget_line_uri . '/budget-line'] = array(
     'title' => 'Budget Line',
     'page callback' => 'budgetsys_line_budget_view',
-    'page arguments' => array($budget_line_uri_argument_position),
+    'page arguments' => array($budget_line_uri_argument_position, TRUE),
     'access callback' => 'entity_access',
     'access arguments' => array('view', 'budgetsys_line', $budget_line_uri_argument_position),
     'file' => 'budgetsys_line.pages.inc',

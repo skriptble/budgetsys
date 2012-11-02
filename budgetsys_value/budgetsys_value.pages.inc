@@ -224,16 +224,11 @@ function budgetsys_value_page_view($value, $view_mode = 'full') {
 }
 
 function budgetsys_value_example_page() {
-  $accounts = budgetsys_org_load_accounts(1);
-  $total = budgetsys_value_calculate_total($accounts, 'approved', '2009-2010');
-    $value = budgetsys_line_value_type('813');
-  print '<pre>';
-   print_r($accounts);
-   print($total);
-  print '</pre>';
-  if(empty($value)) { return 'It works!';}
-  else {
-       return 'Not Empty';
-  }
+
+  dpm(variable_get('budgetsys_prior_year_3'));
+  $year = variable_get('budgetsys_prior_year_3');
+  $value = budgetsys_value_load_budget_line_item('1820', NULL, NULL, NULL, $year);
+  $years = budgetsys_get_years();
+  dpm($value);
    return 'TESTING';
 }

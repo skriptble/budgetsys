@@ -206,6 +206,14 @@ function budgetsys_entity_property_info_alter(&$info) {
     'required' => TRUE,
     'schema field' => 'budget_category',
   ); 
+  $properties['title'] = array(
+    'label' => t("Title"),
+    'type' => 'text',
+    'description' => t("The title of this organization."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer budget organizations',
+    'schema field' => 'title',
+  );  
  $properties = &$info['budgetsys_value']['properties'];
   $properties['created'] = array(
     'label' => t("Date created"),
@@ -266,6 +274,38 @@ function budgetsys_entity_property_info_alter(&$info) {
     'required' => TRUE,
     'schema field' => 'value',
   );  
+}
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function budgetsys_views_data_alter(&$data) {
+   $data['budgetsys_value']['organization_id'] = array(
+    'title' => t('Organization Relationship'), 
+    'help' => t('Adds a relationship to an organization'), 
+    'relationship' => array(
+      'base' => 'budgetsys_org', // Table we're joining to. 
+      'base field' => 'oid', // Field on the joined table. 
+      'field' => 'oid', // Real field name on the 'foo' table. 
+      'handler' => 'views_handler_relationship', 
+      'label' => t('Organization'), 
+      'title' => t('Organization'), 
+      'help' => t('The organization linked to this budget value.'),
+    ),
+   );
+  $data['budgetsys_line']['organization_id'] = array(
+    'title' => t('Organization Relationship'), 
+    'help' => t('Adds a relationship to an organization'), 
+    'relationship' => array(
+      'base' => 'budgetsys_org', // Table we're joining to. 
+      'base field' => 'oid', // Field on the joined table. 
+      'field' => 'oid', // Real field name on the 'foo' table. 
+      'handler' => 'views_handler_relationship', 
+      'label' => t('Organization'), 
+      'title' => t('Organization'), 
+      'help' => t('The organization linked to this budget line item.'),
+    ),
+   );   
 }
 /**
  * Implements hook_menu().
@@ -449,6 +489,13 @@ function budgetsys_load_years_list() {
  */
 function budgetsys_generate_prior_years($current_year = NULL, $num_years = NULL, $reversed = NULL) {
    return budgetsys_load_class('settings')->generatePriorYears($current_year, $num_years, $reversed);    
+}
+
+/**
+ * 
+ */
+function budgetsys_get_years() {
+  return budgetsys_load_class('settings')->getYears();
 }
 
 /******************************************************************
@@ -678,15 +725,22 @@ function budgetsys_value_query_values($account, $type, $year) {
   return entity_get_controller('budgetsys_value')->queryValue($account, $type, $year);
 }
 
-function budgetsys_value_load_budget_value($account, $year, $type) {
-  return entity_get_controller('budgetsys_value')->loadBudgetValue($account, $year, $type);
+function budgetsys_value_load_budget_value($account, $year, $type, $taxonomy = NULL) {
+  return entity_get_controller('budgetsys_value')->loadBudgetValue($account, $year, $type, $taxonomy);
 }
 
 
-function budgetsys_value_load_budget_line_item($account, $main_type = NULL, $types = NULL ,$years = NULL) {
+function budgetsys_value_load_budget_line_item($account, $main_type = NULL, $types = NULL ,$years = NULL, $taxonomy = NULL) {
+  if($taxonomy) {
+    return entity_get_controller('budgetsys_value')->loadBudgetLineItemTaxonomy($account, $main_type, $types, $years);
+  }
   return entity_get_controller('budgetsys_value')->loadBudgetLineItem($account, $main_type, $types, $years);
 }
 
+
+function budgetsys_value_item_formatter($account, $year, $type, $taxonomy) {
+  return entity_get_controller('budgetsys_value')->budgetLineItemFormatter($account, $year, $type, $taxonomy); 
+}
 /**
  * Calculates the total for a series of accounts.
  * If calculating a total for an entire organization use the budgetsys_org_calculate_total function instead
@@ -700,10 +754,10 @@ function budgetsys_value_load_budget_line_item($account, $main_type = NULL, $typ
  * @param $year
  *  The year for the budget values that should be used in this calculation 
  */
-function budgetsys_value_calculate_total($accounts, $type, $year) {
+function budgetsys_value_calculate_total($accounts, $type, $year, $taxonomy = NULL) {
   $total = 0;  
   foreach($accounts as $account) {
-    $budget_value = budgetsys_value_load_budget_value($account, $year, $type);
+    $budget_value = budgetsys_value_load_budget_value($account, $year, $type, $taxonomy);
     $value = $budget_value['value'];
     $total += $value;
   }
@@ -751,6 +805,7 @@ function budgetsys_add_account_year_field($type, $label = 'Account Year') {
       'label' => $label,
       'widget' => array('type' => 'taxonomy_term_reference'),
       'settings' => array('display_summary' => TRUE),
+      'required' =>  TRUE,
       'display' => array(
         'default' => array(
           'label' => 'hidden',
@@ -981,12 +1036,12 @@ function budgetsys_org_load_accounts($oid) {
  * @return 
  * The organization's budget total for the specified year and budget value type.
  */
-function budgetsys_org_calculate_total($organization, $year, $type) {
+function budgetsys_org_calculate_total($organization, $year, $type, $taxonomy = NULL) {
   $accounts = budgetsys_org_load_accounts($organization->oid);
   $total = 0; 
   print_r($accounts); 
   foreach($accounts as $account) {
-    $budget_value = budgetsys_value_load_budget_value($account, $year, $type);
+    $budget_value = budgetsys_value_load_budget_value($account, $year, $type, $taxonomy);
     $value = $budget_value['value'];
     $total += $value;
   }
@@ -997,7 +1052,12 @@ function budgetsys_org_calculate_total($organization, $year, $type) {
  * Saves the total for an organization's budget.
  */
 function budgetsys_org_save_total ($total) {
-  $previous_total = budgetsys_org_load_total($total);
+   $taxonomy = NULL;
+   if($total['taxid']) {
+     $taxonomy = taxonomy_term_load($total['taxid']);
+   }
+   $previous_total = budgetsys_org_load_total($total, $taxonomy);
+
   $is_new = TRUE;
   if($previous_total['tid']) {
      $is_new = FALSE;
@@ -1028,14 +1088,15 @@ function budgetsys_org_save_total ($total) {
  * @return 
  * A status message using drupal_set_message.
  */
-function budgetsys_org_total($organization, $year, $type) {
-  $calculated_total = budgetsys_org_calculate_total($organization, $year, $type);
+function budgetsys_org_total($organization, $year, $type, $taxonomy = NULL) {
+  $calculated_total = budgetsys_org_calculate_total($organization, $year, $type, $taxonomy);
   drupal_set_message('The organization total has been calculated', 'status');
   $save_total = array();
   $save_total['year'] = $year;
   $save_total['type'] = $type;
   $save_total['value'] = $calculated_total;
   $save_total['oid'] = $organization->oid;
+  $save_total['taxid'] = $taxonomy->tid;
   budgetsys_org_save_total($save_total);
 
   return(drupal_set_message('Total calculation and saving complete'));
@@ -1044,7 +1105,20 @@ function budgetsys_org_total($organization, $year, $type) {
 /**
  * Loads a total for an organization's budget.
  */
-function budgetsys_org_load_total($total) {
+function budgetsys_org_load_total($total, $taxonomy = NULL) {
+  if($taxonomy) {
+    $oid = $total['oid'];
+    $type = $total['type'];
+    $query = db_select('budgetsys_total', 't');
+    $query
+      ->fields('t', array('tid', 'value'))
+      ->condition('t.oid', $oid)
+      ->condition('t.type', $type)
+      ->condition('t.taxid', $taxonomy->tid);
+    $result = $query->execute();
+    return $result->fetchAssoc();
+  }
+  
     $oid = $total['oid'];
     $year = $total['year'];
     $type = $total['type'];
@@ -1058,39 +1132,6 @@ function budgetsys_org_load_total($total) {
      return $result;    
 }
 
-/**
- * Takes an account number and optionally a set of years and returns an array.
- * This array contains the budget values, if they exist for the accounts for
- * the specified years. If the user can edit the budget values it returns them
- * as a link to the edit page.
- * 
- * @param $account
- *  The account number that needs to be displayed
- * 
- * @param $years
- *  An optional array of fiscal years
- * 
- * @return
- *  An array of budget values 
- */
-function budgetsys_load_budget_line_item($account, $years = NULL) {
-  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
-   if($years == NULL) {
-      $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);                // Gets the prior years to be displayed
-    }
-  foreach($years as $year) {    
-    $temp_line = budgetsys_line_load_bv($account, $year);                   // Loads the budget value
-    if($temp_line['bvid'] && user_access('edit budget values')) {           // If the budget value exists and the user can edit budget values
-      $formatted_line = budget_value_format_currency($temp_line['value']);  // format this number as a link to the edit page
-      $path = 'budget/value/'. $temp_line['bvid'] . '/edit';
-      $line_item[] = budgetsys_create_link($formatted_line, $path); 
-    }
-    else {
-       $line_item[] = budget_value_format_currency($temp_line['value']); // If the user cannot edit budget values or this budget value
-     }                                                                             // doesn't exist format it as a regular value
-  }
-  return $line_item;
-}
 
 /**
  * Loads all of the line items for a particular organizations. Returns an array with the
@@ -1116,12 +1157,13 @@ function budgetsys_load_complete_organization_budget($budget_org) {
     $budget_org->content['title'][$delta] = $account->title;                       // Sets the title
     $budget_org->content['account_number'][$delta] = $account->account_number;     // Sets the account number
     $budget_org->content['line_item_type'][$delta] = $account->type; 
-    $budget_org->content['values'][$delta] = budgetsys_value_load_budget_line_item($account->account_number);
+    $budget_org->content['values'][$delta] = budgetsys_value_load_budget_line_item($account->account_number, NULL, NULL, NULL, TRUE);
     $delta++;
   }
-  
+
   $total_accounts = budgetsys_org_load_accounts($budget_org->oid);
   $years = budgetsys_generate_prior_years(NULL, NULL, TRUE);                // Gets the prior years to be displayed
+  $years = budgetsys_get_years();
   $total = array();
      $main_type = variable_get('budgetsys_value_final_type');
      if($main_type == NULL) {
@@ -1135,23 +1177,14 @@ function budgetsys_load_complete_organization_budget($budget_org) {
      $main_type_key = array_search($main_type, $types);
      unset($types[$main_type_key]);
      
-  foreach($years as $year) {
-    $budget_load_total = array('oid' => $budget_org->oid, 'year' => $year, 'type' => $main_type);
-    $loaded_total = budgetsys_org_load_total($budget_load_total); 
-    if($loaded_total['value']) {
-      $total[] = budget_value_format_currency($loaded_total['value']); 
-    } else {
-        $total[] = budget_value_format_currency(budgetsys_value_calculate_total($total_accounts, $main_type, $year));
-    }
+  foreach($years['prior years'] as $year) {
+    $total[] = budgetsys_org_total_formatter($budget_org, $year, $main_type, $year, $total_accounts);
   }
+  $current_year = $years['current year'];
+  $total[] = budgetsys_org_total_formatter($budget_org, $year, $main_type, $current_year, $total_accounts);
+
   foreach($types as $type) {
-    $budget_load_total = array('oid' => $budget_org->oid, 'year' => $year, 'type' => $type);
-    $loaded_total = budgetsys_org_load_total($budget_load_total); 
-    if($loaded_total['value']) {
-      $total[] = budget_value_format_currency($loaded_total['value']); 
-    } else {
-      $total[] = budget_value_format_currency(budgetsys_value_calculate_total($total_accounts, $type, $year));
-    }
+    $total[] = budgetsys_org_total_formatter($budget_org, $year, $type, $current_year, $total_accounts);
   }
     $budget_org->content['title'][$delta] = '';                       // Sets the title
     $budget_org->content['account_number'][$delta] = '';     // Sets the account number
@@ -1170,6 +1203,17 @@ function budgetsys_load_complete_organization_budget($budget_org) {
      $types = budgetsys_value_types_extra();
      $budget_org->content['headers'] = array_merge($years, $types);
   return $budget_org->content;
+}
+
+function budgetsys_org_total_formatter($budget_org, $year, $type, $taxonomy, $accounts) {
+    $budget_load_total = array('oid' => $budget_org->oid, 'year' => $year, 'type' => $type);
+    $loaded_total = budgetsys_org_load_total($budget_load_total, $taxonomy); 
+    if($loaded_total['value']) {
+      return budget_value_format_currency($loaded_total['value']); 
+    } else {
+        return budget_value_format_currency(budgetsys_value_calculate_total($accounts, $type, $year, $taxonomy));
+    }
+  
 }
 
 /**
@@ -1196,7 +1240,7 @@ function budgetsys_load_complete_budget_line_items($line_item) {
        }
      }       
   $account = $line_item->account_number;
-  $line_item->content['values'] = budgetsys_value_load_budget_line_item($account);
+  $line_item->content['values'] = budgetsys_value_load_budget_line_item($account, NULL, NULL, NULL, TRUE);
   $line_item->content['num_years'] = variable_get('budgetsys_line_num_prior_years', '3');   // Provides the number of prior years to display
 
   

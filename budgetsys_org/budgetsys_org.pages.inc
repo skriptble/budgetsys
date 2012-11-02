@@ -248,20 +248,11 @@ function budgetsys_org_view_budget_category_organization() {
 }
 
 function budgetsys_org_example() {
-  module_load_include('inc', 'budgetsys_org', 'budgetsys_org.api');
-  module_load_include('inc', 'budgetsys_line', 'budgetsys_line.api'); 
-  $examples = budgetsys_org_load_org_budget_lines(1);
-  foreach($examples as $example) {
-    print $example->account_number;
-    $bv = budgetsys_line_load_bv($example->account_number, '2011-2012');
-    print_r($bv);
-    print '<br><br>';
-    $value = budgetsys_load_budget_line_item($example->account_number);
-    print_r($value);
-    print render($value['0']);
-    print render($value['1']);
-    print '<br><br>';
-  }
+
+ $tree = taxonomy_get_tree('2');
+ foreach(budgetsys_value_types() as $type) {
+ budgetsys_add_account_year_field($type);
+ }
   
   return 'hi';
 }

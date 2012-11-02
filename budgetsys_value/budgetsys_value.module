@@ -43,7 +43,7 @@ function budgetsys_value_menu() {
     'page callback' => 'budgetsys_value_admin_add_page',
     'access arguments' => array('administer budget values'),
     'file' => 'budgetsys_value.admin.inc',
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_NORMAL_ITEM | MENU_LOCAL_ACTION,
 
   );
   $budget_value_uri = 'budget/value/%budgetsys_value';
@@ -107,6 +107,7 @@ function budgetsys_value_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'budgetsys_value.admin.inc',
   );
+  
   
   return $items;
 }

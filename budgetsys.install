@@ -369,6 +369,11 @@ function budgetsys_schema() {
         'type' => 'int',
         'not null' => TRUE,
       ), 
+      'taxid' => array(         
+        'description' => 'The taxonomy associated with this budget total',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),       
      ),
       'unique keys' => array(
       'oid_tid' => array('oid', 'tid'),
@@ -568,7 +573,6 @@ function budgetsys_schema() {
     ),
   );
   return $schema;  
-  return $schema;
 }
 
 /**
@@ -620,3 +624,17 @@ function budgetsys_update_7006() {
   return "Table created successfully!";
 }
 
+
+/**
+ * Add newcol field to {budgetsys_total} table.
+ */
+function budgetsys_update_7007() {
+
+    $spec = array(         
+        'description' => 'The taxonomy associated with this budget total',
+        'type' => 'int',
+      );   
+        db_add_field( 'budgetsys_total', 'taxid', $spec);
+         return "Field added successfully!";
+}
+       

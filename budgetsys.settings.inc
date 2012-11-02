@@ -156,7 +156,7 @@ function budgetsys_prior_years_table() {
   $tids = array_map('budgetsys_taxonomy_get_tid', $terms);
   $current_year = variable_get('budgetsys_current_fiscal_year_taxonomy', '');
   $key = array_search($current_year, $tids);
-  $term = taxonomy_term_load($tids[$key]);
+  $term = taxonomy_term_load($current_year);
 
   $headers = array();
   $rows = array();
