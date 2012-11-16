@@ -333,6 +333,15 @@ function budgetsys_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'budgetsys.settings.inc',
   );
+  $items['admin/budget'] = array(
+    'title' => 'Budget',
+    'description' => 'Administer Budget System',
+    'position' => 'right',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer budget system'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );  
   return $items;
 }
 /**
