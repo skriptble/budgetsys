@@ -100,6 +100,28 @@ class BudgetSystemSettingsAPI {
     }
     return($years);
   }
+  
+  public function fiscalYearTaxonomyTree() {
+    $vocabulary = variable_get('budgetsys_fiscal_years_vid', '');
+    $vid = $vocabulary->vid;
+    return taxonomy_get_tree($vid, 0, NULL, TRUE);
+  }
+  
+  public function currentFiscalYear() {
+    $terms = budgetsys_fiscal_year_taxonomy_tree();
+    $tids = array_map('budgetsys_taxonomy_get_tid', $terms);
+    $names = array_map('budgetsys_taxonomy_get_name', $terms);
+    $options = array_combine($tids, $names);
+    return $options;
+  }
+
+  public function taxonomyGetTID($term) {
+    return $term->tid;
+  }
+ 
+  public function taxonomyGetName($term) {
+    return $term->name;
+  }
 }
 
 class BudgetSystemFormattingAPI {

@@ -93,54 +93,6 @@ function budget_value_configuration_form($form, &$form_state) {
 }
 
 /**
- * Extracts the name from a vocabulary term
- * 
- * @param $term
- * A taxonomy term object
- * 
- * returns
- * The name of the term
- */
-function budgetsys_taxonomy_get_name($term) {
-  return $term->name;
-}
-/**
- * Extracts the term id from a vocabulary term
- * 
- * @param $term
- * A taxonomy term object
- * 
- * returns
- * The tid of the term
- */
-function budgetsys_taxonomy_get_tid($term) {
-  return $term->tid;
-}
-/**
- * Loads a taxonomy tree for the Budget System Fiscal Years
- */
-function budgetsys_fiscal_year_taxonomy_tree() {
-  $vocabulary = variable_get('budgetsys_fiscal_years_vid', '');
-  $vid = $vocabulary->vid;
-  return taxonomy_get_tree($vid, 0, NULL, TRUE);
-} 
-/**
- * Creates an associative array keyed by term IDs with values of
- * the names of those terms.
- * 
- * returns
- * An array keyed by TIDs with values of term names.
- */
-function budgetsys_current_fiscal_year_taxonomy() {
-  $terms = budgetsys_fiscal_year_taxonomy_tree();
-  $tids = array_map('budgetsys_taxonomy_get_tid', $terms);
-  $names = array_map('budgetsys_taxonomy_get_name', $terms);
-  $options = array_combine($tids, $names);
-  return $options;
-}
-
-
-/**
  * Creates a table to display the prior years. These years will
  * be used throughout the system to display previous year's budget
  * values. This also clears the previous prior year variables before it

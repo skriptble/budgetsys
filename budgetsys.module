@@ -507,6 +507,49 @@ function budgetsys_generate_prior_years($current_year = NULL, $num_years = NULL,
 function budgetsys_get_years() {
   return budgetsys_load_class('settings')->getYears();
 }
+/**
+ * Loads a taxonomy tree for the Budget System Fiscal Years
+ */
+function budgetsys_fiscal_year_taxonomy_tree() {
+  return budgetsys_load_class('settings')->fiscalYearTaxonomyTree();
+} 
+/**
+ * Creates an associative array keyed by term IDs with values of
+ * the names of those terms.
+ * 
+ * returns
+ * An array keyed by TIDs with values of term names.
+ */
+function budgetsys_current_fiscal_year_taxonomy() {
+  return budgetsys_load_class('settings')->currentFiscalYear();
+}
+
+/**
+ * Extracts the term id from a vocabulary term
+ * 
+ * @param $term
+ * A taxonomy term object
+ * 
+ * returns
+ * The tid of the term
+ */
+function budgetsys_taxonomy_get_tid($term) {
+  return budgetsys_load_class('settings')->taxonomyGetTID($term);
+}
+
+/**
+ * Extracts the name from a vocabulary term
+ * 
+ * @param $term
+ * A taxonomy term object
+ * 
+ * returns
+ * The name of the term
+ */
+function budgetsys_taxonomy_get_name($term) {
+  return budgetsys_load_class('settings')->taxonomyGetName($term);
+}
+
 
 /******************************************************************
 **********************Formatting API******************************* 
