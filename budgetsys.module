@@ -240,7 +240,7 @@ function budgetsys_entity_property_info_alter(&$info) {
   );
   $properties['account_number'] = array(
     'label' => t("Account Number"),
-    'type' => 'varchar',
+    'type' => 'text',
     'description' => t("The account number of the budget value."),
     'setter callback' => 'entity_property_verbatim_set',
     'setter permission' => 'administer budget values',
@@ -249,7 +249,7 @@ function budgetsys_entity_property_info_alter(&$info) {
   );
     $properties['year'] = array(
     'label' => t("Fiscal Year"),
-    'type' => 'varchar',
+    'type' => 'text',
     'description' => t("The fiscal year of the budget value."),
     'setter callback' => 'entity_property_verbatim_set',
     'setter permission' => 'administer budget values',
@@ -267,7 +267,7 @@ function budgetsys_entity_property_info_alter(&$info) {
   );
   $properties['value'] = array(
     'label' => t("Value"),
-    'type' => 'float',
+    'type' => 'decimal',
     'description' => t("The value of this budget value."),
     'setter callback' => 'entity_property_verbatim_set',
     'setter permission' => 'administer budget values',
