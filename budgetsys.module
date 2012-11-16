@@ -61,6 +61,7 @@ $return['budgetsys_org'] = array(
       'entity class' => 'BudgetsysOrgClass',
       'controller class' => 'BudgetsysOrgClassController',
       'base table' => 'budgetsys_org',
+      'access callback' => 'budgetsys_org_access',
       'fieldable' => TRUE,
       'bundles' => array(),
       'entity keys' => array(
