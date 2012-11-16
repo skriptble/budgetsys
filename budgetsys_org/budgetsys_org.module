@@ -92,7 +92,6 @@ function budgetsys_org_menu() {
     'page arguments' => array('budgetsys_org_admin_settings'),
     'access arguments' => array('administer budget organizations'),
     'file' => 'budgetsys_org.admin.inc',
-    'weight' => -10,
   );
   $items['admin/structure/budget/organization/settings'] = array(
     'title' => 'Settings',
