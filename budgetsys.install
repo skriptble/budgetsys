@@ -624,17 +624,4 @@ function budgetsys_update_7006() {
   return "Table created successfully!";
 }
 
-
-/**
- * Add newcol field to {budgetsys_total} table.
- */
-function budgetsys_update_7007() {
-
-    $spec = array(         
-        'description' => 'The taxonomy associated with this budget total',
-        'type' => 'int',
-      );   
-        db_add_field( 'budgetsys_total', 'taxid', $spec);
-         return "Field added successfully!";
-}
        
