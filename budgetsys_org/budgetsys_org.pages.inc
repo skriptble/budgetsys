@@ -69,7 +69,7 @@ function budgetsys_org_form($form, &$form_state, $budget_org) {
   );
   if (!empty($budget_org->oid)) {
     $form['buttons']['delete'] = array(
-      '#access' => user_access('delete budget values'),
+      '#access' => user_access('delete budget organizations'),
       '#type' => 'submit',
       '#value' => t('Delete'),
       '#weight' => 15,
@@ -104,7 +104,7 @@ function budgetsys_org_form_submit($form, &$form_state) {
   $budget_org->active = $form_state['values']['active'];
   $budget_org->budget_category = $form_state['values']['budget_category'];
   // Notify field widgets.
-  field_attach_submit('budget_org', $budget_org, $form, $form_state);
+  field_attach_submit('budgetsys_org', $budget_org, $form, $form_state);
   // Save the organization.
   budgetsys_org_save($budget_org);
   // Notify the user.
