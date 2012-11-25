@@ -35,7 +35,7 @@ function budgetsys_line_type_form($form, &$form_state, $line_type, $op = 'edit')
   $form['value_type'] = array(
     '#title' => t('Types of Values'),
     '#type' => 'radios',
-    '#default value' => '',
+    '#default value' => isset($line_type->value_type) ? $line_type->value_type : '',
     '#options' => array(
       'positive' => t('Only positive values.'),
       'negative' => t('Only negative values.'),
@@ -61,7 +61,7 @@ function budgetsys_line_type_form($form, &$form_state, $line_type, $op = 'edit')
   if (!$line_type->isLocked() && $op != 'add' && $op != 'clone') {
     $form['actions']['delete'] = array(
       '#type' => 'submit',
-      '#value' => t('Delete task type'),
+      '#value' => t('Delete budget line type'),
       '#weight' => 45,
       '#limit_validation_errors' => array(),
       '#submit' => array('budgetsys_line_type_form_submit_delete')
@@ -218,7 +218,7 @@ function budgetsys_line_form_submit($form, &$form_state) {
 
   $form_state['redirect'] = $line_item_uri['path'];
 
-  drupal_set_message(t('Task %title saved.', array('%title' => entity_label('budgetsys_line', $line_item))));
+  drupal_set_message(t('Budget Line %title saved.', array('%title' => entity_label('budgetsys_line', $line_item))));
 }
 
 function budgetsys_line_form_submit_delete($form, &$form_state) {
@@ -236,7 +236,7 @@ function budgetsys_line_delete_form($form, &$form_state, $line_item) {
   $form['line_type_id'] = array('#type' => 'value', '#value' => entity_id('budgetsys_line' ,$line_item));
   $line_item_uri = entity_uri('budgetsys_line', $line_item);
   return confirm_form($form,
-    t('Are you sure you want to delete task %title?', array('%title' => entity_label('budgetsys_line', $line_item))),
+    t('Are you sure you want to delete budget line item %title?', array('%title' => entity_label('budgetsys_line', $line_item))),
     $line_item_uri['path'],
     t('This action cannot be undone.'),
     t('Delete'),
@@ -251,7 +251,7 @@ function budgetsys_line_delete_form_submit($form, &$form_state) {
   $line_item = $form_state['line_item'];
   budgetsys_line_delete($line_item);
 
-  drupal_set_message(t('Task %title deleted.', array('%title' => entity_label('budgetsys_line', $line_item))));
+  drupal_set_message(t('Budget Line %title deleted.', array('%title' => entity_label('budgetsys_line', $line_item))));
 
   $form_state['redirect'] = '<front>';
 }
