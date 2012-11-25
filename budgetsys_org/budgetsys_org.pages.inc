@@ -35,7 +35,7 @@ function budgetsys_org_form($form, &$form_state, $budget_org) {
   $form['active'] = array(
     '#type' => 'checkbox',
     '#title' => t('Active Organization'),
-    '#default_value' => isset($budget_org->active) ? $budget_org->active : 0,
+    '#default_value' => isset($budget_org->active) ? $budget_org->active : 1,
     '#description' => t('Check this box is this organization is active.'),
     '#weight' => -4,
     '#required' => FALSE,

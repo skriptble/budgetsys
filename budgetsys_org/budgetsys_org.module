@@ -102,7 +102,7 @@ function budgetsys_org_menu() {
     'title' => 'By Organization',
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'budgetsys_org_view_budget_organization',
-    'access arguments' => array('view content'),
+    'access arguments' => array('view budget'),
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'budgetsys_org.pages.inc',
   );
@@ -110,7 +110,7 @@ function budgetsys_org_menu() {
     'title' => 'By Category',
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'budgetsys_org_view_budget_category_organization',
-    'access arguments' => array('view content'),
+    'access arguments' => array('view budget'),
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'budgetsys_org.pages.inc',
   );
