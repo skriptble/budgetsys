@@ -14,3 +14,7 @@ The goal of this project is to make a Budgeting System that can handle taking a 
 Currently the module can do the following:
 
 Display Organization/Department budgets, specified by line item numbers.
+
+
+This module may be used for production at this time, however, frequent updates will occur.
+Report any bugs to the issue queue: http://drupal.org/project/issues/1617270
