@@ -327,13 +327,13 @@ function budgetsys_menu() {
     'description' => 'The entire budget displayed by budget category',
     'page callback' => 'budgetsys_view_budget',
     'page arguments' => array(2,3),
-    'access arguments' => array('view content'),
+    'access arguments' => array('view budget'),
     'file' => 'budgetsys.pages.inc',
   );
   $items['budget/full/all-lines'] = array(
     'title' => 'All Lines',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'access arguments' => array('view content'),
+    'access arguments' => array('view budget'),
   );
   $items['admin/config/system/budget_system'] = array(
     'title' => t('Budget System Configuration'),
@@ -385,7 +385,6 @@ function budgetsys_permission() {
     'view budget line items' => array(
       'title' => t('View budget line items'),
       'description' => t('Allows users to view budget line items.'),
-      'restrict access' => TRUE,
     ),
     'edit any budget line items' => array(
       'title' => t('Edit any budget line items'),
@@ -410,7 +409,6 @@ function budgetsys_permission() {
     'view budget organizations' => array(
       'title' => t('View budget organizations'),
       'description' => t('Allows users to view budget organizations.'),
-      'restrict access' => TRUE,
     ),
     'edit any budget organizations' => array(
       'title' => t('Edit any budget organizations'),
@@ -435,7 +433,6 @@ function budgetsys_permission() {
     'view budget values' => array(
       'title' => t('View budget values'),
       'description' => t('Allows users to view budget values.'),
-      'restrict access' => TRUE,
     ),
     'edit any budget values' => array(
       'title' => t('Edit any budget values'),
@@ -446,7 +443,11 @@ function budgetsys_permission() {
       'title' => t('Edit own budget values'),
       'description' => t('Allows users to edit own budget values.'),
       'restrict access' => TRUE,
-    ),    
+    ),  
+    'view budget' => array(
+      'title' => t('View Budget'),
+      'description' => t('Allow users to view bdget.'),
+    ),        
   );
   return $permissions;
 }
