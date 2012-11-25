@@ -150,6 +150,8 @@ class BudgetsysOrgClass extends Entity {
   protected function defaultUri() {
     return array('path' => 'budget/org/' . $this->identifier());
   }
+  
+  public $original;
 }
 
 class BudgetsysOrgClassController extends EntityAPIController {
@@ -160,7 +162,7 @@ class BudgetsysOrgClassController extends EntityAPIController {
       'title' => '',
       'created' => REQUEST_TIME,
       'changed' => REQUEST_TIME,
-      'active' => 0,
+      'active' => 1,
       'budget category' => '',
       'uid' => $user->uid,
     );
